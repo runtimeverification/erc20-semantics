@@ -18,22 +18,22 @@ module IMP
                  | "if" "(" BExp ")"
                    Block "else" Block         [strict(1)]
                  | "while" "(" BExp ")" Block
-  				 | Stmt ";"
+                 | Stmt ";"
                  > Stmt Stmt                  [left]
   syntax Pgm ::= "int" Ids ";" Stmt
   syntax Ids ::= List{Id,","}
 
   syntax Stmt ::= AExp ";"                         [strict]
-				| BExp ";"                         [strict]
-				| makeAccount(AExp,AExp)           [strict]
-				| makeAllowanceOwner(AExp)         [strict]
-				| makeAllowanceSpender(AExp,AExp)  [strict]
-				| makeCaller(AExp)                 [strict]
+                | BExp ";"                         [strict]
+                | makeAccount(AExp,AExp)           [strict]
+                | makeAllowanceOwner(AExp)         [strict]
+                | makeAllowanceSpender(AExp,AExp)  [strict]
+                | makeCaller(AExp)                 [strict]
 
   configuration <IMP>
                   initERC20Cell(Init)
-				  <state> .Map </state>
-				</IMP>
+                  <state> .Map </state>
+                </IMP>
 
   syntax KResult ::= Int | Bool
 

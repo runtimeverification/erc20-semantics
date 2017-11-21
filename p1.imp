@@ -1,0 +1,23 @@
+// -------------------------
+// Create some initial configuration first: accounts, allowances, caller
+// Make sure you add all the allowances for all the pairs of accounts :(
+int accounts, x, y, a, b, c;
+accounts = 7;
+x = accounts;
+while(!(x <= 0)) {
+  makeAccount(x, x*10);
+  makeAllowanceOwner(x);
+  y = accounts;
+  while(!(y <= 0)) {
+    makeAllowanceSpender(x,y);
+	y = y + -1;
+  }
+  x = x + -1;
+}
+makeCaller(7);
+// -------------------------
+
+// now execute some transactions
+a = balanceOf(4);
+transfer(4,a);
+b = balanceOf(4);

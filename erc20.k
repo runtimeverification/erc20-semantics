@@ -1,3 +1,6 @@
+//
+// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md
+//
 // Get the total token supply
 //    function totalSupply() constant returns (uint256 totalSupply)
 // Get the account balance of another account with address _owner
@@ -12,26 +15,105 @@
 // Returns the amount which _spender is still allowed to withdraw from _owner
 //    function allowance(address _owner, address _spender) constant returns (uint256 remaining)
 
-module ERC20-SYNTAX
+module ERC20
   syntax AExp ::= totalSupply()
                 | balanceOf(Int)
-                | allowance(Int,Int)
-  syntax BExp ::= transfer(Int,Int)
-			    | transferFrom(Int,Int,Int)
-				| approve(Int,Int)
-endmodule
+                | allowance(Int, Int)
+  syntax BExp ::= transfer(Int, Int)
+			    | transferFrom(Int, Int, Int)
+				| approve(Int, Int)
+                | "throw"
+  syntax Event ::= Transfer(Int, Int, Int)
+                 | Approval(Int, Int, Int)
 
-
-module ERC20
-  imports ERC20-SYNTAX
-  syntax KResult ::= Int | Bool
-
-  configuration   <k> $PGM </k>
+  configuration   <caller> 0 </caller>
+                  <k> $PGM </k>
+                  <allowances>
+                    <allowance multiplicity="*">
+                      <owner> 0 </owner>
+                      <allows multiplicity="*">
+                        <spender> 0 </spender>
+                        <amount> 0 </amount>
+                      </allows>
+                    </allowance>
+                  <allowances>
+                  <log> .List </log>
                   <accounts>
                     <account multiplicity="*">
                       <id> 0 </id>
-  					  <value> 0 </value>
+  					  <balance> 0 </balance>
                     </account>
+                    <supply> 0 </supply>
                   </accounts>
 
+  rule <k> totalSupply() => Total ...</k>
+       <supply> Total </supply>
+       
+  rule <k> balanceOf(Owner) => Value ...</k>
+       <id> Owner </id>
+       <balance> Value </balance>
+
+  rule <k> allowance(Owner, Spender) => Allowance ...</k>
+       <owner> Owner </owner>
+       <spender> Spender </spender>
+       <amount> Allowance </amount>
+
+  rule <k> transfer(To, Value) => true ...</k>
+       <caller> From </caller>
+       <account>
+         <id> From </id>
+         <balance> BalanceFrom => BalanceFrom -Int Value </balance>
+       </account>
+       <account>
+         <id> To </id>
+         <balance> BalanceTo => BalanceTo +Int Value </balance>
+       </account>
+       <log>... .List => ListItem(Transfer(From, To, Value)) </log>
+    requires Value <=Int BalanceFrom
+
+  rule <k> transfer(_, Value) => throw ...</k>
+       <caller> From </caller>
+       <id> From </id>
+       <balance> BalanceFrom </balance>
+     requires Value >Int BalanceFrom
+
+   rule <k> transferFrom(From, To, Value) => true ...<k>
+       <account>
+         <id> From </id>
+         <balance> BalanceFrom => BalanceFrom -Int Value </balance>
+       </account>
+       <account>
+         <id> To </id>
+         <balance> BalanceTo => BalanceTo +Int Value </balance>
+       </account>
+       <owner> From </owner>
+       <sender> To </sender>
+       <amount> Allowance => Allowance -Int Value </amount>
+       <log>... . => ListItem(Transfer(From, To, Value)) </log>
+    requires Value <=Int BalanceFrom
+     andBool Value <=Int Allowance
+
+  rule <k> transferFrom(From,To,Value) => throw ...</k>
+       <caller> From </caller>
+       <id> From </id>
+       <balance> BalanceFrom </balance>
+       <owner> From </owner>
+       <sender> To </sender>
+       <amount> Allowance </amount>
+     requires Value >Int BalanceFrom
+       orBool Value >Int Allowance
+
+  rule <k> approve(Spender, Allowance) => true ...</k>
+       <caller> Owner </caller>
+       <owner> Owner </owner>
+       <spender> Spender </spender>
+       <amount> Allowance </amount>
+       <log>... .List => ListItem(Approve(Owner, Spender, Allowance)) </log>
+
 endmodule
+
+module IMP
+  syntax KResult ::= Int | Bool
+  ...
+endmodule
+

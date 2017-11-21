@@ -10,8 +10,8 @@ module ERC20
                 | allowance(Address, Address)
   syntax BExp ::= Bool
                 | transfer(Address, AExp)              [strict]
-			    | transferFrom(Address, Address, AExp) [strict]
-				| approve(Address, AExp)               [strict]
+                | transferFrom(Address, Address, AExp) [strict]
+                | approve(Address, AExp)               [strict]
                 | "throw"
   syntax Event ::= Transfer(Address, Address, Int)
                  | Approval(Address, Address, Int)
@@ -22,23 +22,23 @@ module ERC20
                   <allowances>
                     <allowance multiplicity="*">
                       <owner> 0 </owner>
-					  <spenders>
+                      <spenders>
                         <allow multiplicity="*">
                           <spender> 0 </spender>
                           <amount> 0 </amount>
                         </allow>
-				      </spenders>
+                      </spenders>
                     </allowance>
                   </allowances>
                   <log> .List </log>
                   <accounts>
                     <account multiplicity="*">
                       <id> 0 </id>
-  					  <balance> 0 </balance>
+                      <balance> 0 </balance>
                     </account>
                   </accounts>
                   <supply> 0 </supply>
-				</ERC20>
+                </ERC20>
 
   rule <k> totalSupply() => Total ...</k>
        <supply> Total </supply>

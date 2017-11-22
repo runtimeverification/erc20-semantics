@@ -3,10 +3,8 @@
 //
 
 module ERC20
-  syntax Address ::= Int  // this can be changed
-  syntax Value   ::= Int  // this can be changed
+  syntax Address ::= Int  // this can and should be changed
   syntax AExp ::= Int
-                | Address | Value   // this can be changed 
                 | "totalSupply" "(" ")"
                 | balanceOf(Address)
                 | allowance(Address, Address)

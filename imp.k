@@ -23,12 +23,11 @@ module IMP
   syntax Pgm ::= "int" Ids ";" Stmt
   syntax Ids ::= List{Id,","}
 
-  syntax Stmt ::= AExp ";"                         [strict]
-                | BExp ";"                         [strict]
-                | makeAccount(AExp,AExp)           [strict]
-                | makeAllowanceOwner(AExp)         [strict]
-                | makeAllowanceSpender(AExp,AExp)  [strict]
-                | makeCaller(AExp)                 [strict]
+  syntax Stmt ::= AExp ";"                  [strict]
+                | BExp ";"                  [strict]
+                | makeAccount(AExp,AExp)    [strict]
+                | makeAllowance(AExp,AExp)  [strict]
+                | makeCaller(AExp)          [strict]
 
   configuration <IMP>
                   initERC20Cell(Init)
@@ -38,7 +37,7 @@ module IMP
   syntax KResult ::= Int | Bool
 
 // AExp
-  rule <k> X:Id => I ...</k> <state>... X |-> I ...</state>
+  rule <k> X:Id => Rho[X] ...</k> <state> Rho </state>
   rule I1 * I2 => I1 *Int I2
   rule I1 + I2 => I1 +Int I2
 // BExp
@@ -64,11 +63,9 @@ module IMP
   rule _:Int; => .
   rule S:Stmt; => S
   rule <k> makeAccount(A,V) => . ...</k>
-       <accounts>... .Bag => <account> <id> A </id> <balance> V </balance> </account> ...</accounts>
-  rule <k> makeAllowanceOwner(A) => . ...</k>
-       <allowances>... .Bag => <allowance> <owner> A </owner> <spenders> .Bag </spenders> </allowance> ...</allowances>
-  rule <k> makeAllowanceSpender(A,B) => . ...</k>
-       <allowance> <owner> A </owner> <spenders>... .Bag => <allow> <spender> B </spender> <amount> 0 </amount> </allow> ...</spenders> </allowance>
+       <accounts>... .Bag => <account> <id> A </id> <balance> V </balance> <allowances> .Bag </allowances> </account> ...</accounts>
+  rule <k> makeAllowance(A,B) => . ...</k>
+       <id> A </id> <allowances>... .Bag => <allowance> <spender> B </spender> <amount> 0 </amount> </allowance> ...</allowances>
   rule <k> makeCaller(I:Int) => . ...</k>
        <caller> _ => I </caller>
 endmodule

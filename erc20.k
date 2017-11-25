@@ -25,13 +25,13 @@ module ERC20
                   <k> $PGM:K </k>
                   <log> Events: </log>
                   <supply> 0 </supply>
-                  <accounts>
+                  <accounts map="">
                     <account multiplicity="*">
-                      <id> 0 </id>
+                      <id key=""> 0 </id>
                       <balance> 0 </balance>
-                      <allowances>
+                      <allowances map="">
                         <allowance multiplicity="*">
-                          <spender> 0 </spender>
+                          <spender key=""> 0 </spender>
                           <amount> 0 </amount>
                         </allowance>
                       </allowances>

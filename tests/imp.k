@@ -1,4 +1,4 @@
-requires "../erc20.k"
+requires "../other_approaches/erc20-AllowanceAsMap.k"
 
 module IMP
   import ERC20
@@ -83,12 +83,13 @@ module IMP
   rule _:Int; => .
   rule S:Stmt; => S
   rule <k> makeAccount(A,V) => . ...</k>
+//       <accounts>... .Bag => <account> <id> A </id> <balance> V </balance>
+//                             <allowances> .Bag </allowances> </account> ...</accounts>
        <accounts>... .Bag => <account> <id> A </id> <balance> V </balance>
-                             <allowances> .Bag </allowances> </account> ...</accounts>
-  rule <k> makeAllowance(A,B) => . ...</k>
-       <id> A </id> <allowances>... .Bag => <allowance> <spender> B </spender>
-                                            <amount> 0 </amount> </allowance>
-                    ...</allowances>
+                             <allowances> .Map </allowances> </account> ...</accounts>
+  rule <k> makeAllowance(A,B) => . ...</k> <id> A </id>
+//       <allowances>... .Bag => <allowance> <spender> B </spender> <amount> 0 </amount> </allowance> ...</allowances>
+       <allowances> Rho => Rho[B <- 0] </allowances>
   rule <k> makeTotalSupply(I) => . ...</k> <supply> _ => I </supply>
   rule <k> makeCaller(I:Int) => . ...</k>
        <caller> _ => I </caller>

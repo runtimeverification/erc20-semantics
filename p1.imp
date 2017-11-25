@@ -21,3 +21,4 @@ a = balanceOf(4);
 c = balanceOf(4);
 transfer(4,a);
 b = balanceOf(4);
+transfer(4,balanceOf(2));

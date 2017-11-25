@@ -3,21 +3,27 @@ requires "../erc20.k"
 module IMP
   import ERC20
 
-  syntax AExp  ::= Id
-                 | AExp "*" AExp              [left, strict]
+  syntax AExp  ::= String | Id
+                 | "read" "(" ")"
+                 > AExp "*" AExp              [left, strict]
                  > AExp "+" AExp              [left, strict]
                  | "(" AExp ")"               [bracket]
-  syntax BExp  ::= AExp "<=" AExp             [seqstrict, latex({#1}\leq{#2})]
+  syntax BExp  ::= AExp "<=" AExp             [seqstrict]
+                 | AExp "==" AExp             [seqstrict]
                  | "!" BExp                   [strict]
                  > BExp "&&" BExp             [left, strict(1)]
+                 > BExp "||" BExp             [left, strict(1)]
                  | "(" BExp ")"               [bracket]
   syntax Block ::= "{" "}"
                  | "{" Stmt "}"
   syntax Stmt  ::= Block
                  | Id "=" AExp ";"            [strict(2)]
                  | "if" "(" BExp ")"
-                   Block "else" Block         [strict(1)]
+                   Block "else" Block         [strict(1), prefer]
+                 | "if" "(" BExp ")" Block
                  | "while" "(" BExp ")" Block
+                 | "print" "(" AExp ")"       [strict]
+                 | "halt"
                  | Stmt ";"
                  > Stmt Stmt                  [left]
   syntax Pgm ::= "int" Ids ";" Stmt
@@ -27,24 +33,32 @@ module IMP
                 | BExp ";"                  [strict]
                 | makeAccount(AExp,AExp)    [strict]
                 | makeAllowance(AExp,AExp)  [strict]
+                | makeTotalSupply(AExp)     [strict]
                 | makeCaller(AExp)          [strict]
 
   configuration <IMP>
                   initERC20Cell(Init)
                   <state> .Map </state>
+                  <in color="magenta" stream="stdin"> .List </in>
+                  <out color="Orchid" stream="stdout"> .List </out>
                 </IMP>
 
-  syntax KResult ::= Int | Bool
+  syntax KResult ::= Int | Bool | String
 
 // AExp
   rule <k> X:Id => Rho[X] ...</k> <state> Rho </state>
+  rule <k> read() => I ...</k>
+       <in> ListItem(I:Int) => .List ...</in>  [read]
   rule I1 * I2 => I1 *Int I2
   rule I1 + I2 => I1 +Int I2
 // BExp
   rule I1 <= I2 => I1 <=Int I2
+  rule I1 == I2 => I1 ==Int I2
   rule ! T => notBool T
   rule true && B => B
   rule false && _ => false
+  rule true || _ => true
+  rule false || B => B
 // Block
   rule {} => .   [structural]
   rule {S} => S  [structural]
@@ -53,11 +67,17 @@ module IMP
   rule S1:Stmt S2:Stmt => S1 ~> S2  [structural]
   rule if (true)  S else _ => S
   rule if (false) _ else S => S
+  rule if (B) S => if (B) S else {}
   rule while (B) S => if (B) {S while (B) S} else {}  [structural]
 // Pgm
   rule <k> int (X,Xs => Xs);_ </k> <state> Rho:Map (.Map => X|->0) </state>
     requires notBool (X in keys(Rho))
   rule int .Ids; S => S  [structural]
+  rule <k> print(I:Int) => . ...</k>
+       <out>... .List => ListItem(I) </out>
+  rule <k> print(Str:String) => . ...</k>
+       <out>... .List => ListItem(Str) </out>
+  rule <k> halt; ~> _ => . </k>
 
   rule true; => .
   rule _:Int; => .
@@ -69,6 +89,7 @@ module IMP
        <id> A </id> <allowances>... .Bag => <allowance> <spender> B </spender>
                                             <amount> 0 </amount> </allowance>
                     ...</allowances>
+  rule <k> makeTotalSupply(I) => . ...</k> <supply> _ => I </supply>
   rule <k> makeCaller(I:Int) => . ...</k>
        <caller> _ => I </caller>
 endmodule

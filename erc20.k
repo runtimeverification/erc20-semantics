@@ -11,9 +11,9 @@ module ERC20
                 | "balanceOf" "(" AExp ")"                       [strict]
                 | "allowance" "(" AExp "," AExp ")"              [strict]
   syntax BExp ::= Bool
+                | "approve" "(" AExp "," AExp ")"                [strict]
                 | "transfer" "(" AExp "," AExp ")"               [strict]
                 | "transferFrom" "(" AExp "," AExp "," AExp ")"  [strict]
-                | "approve" "(" AExp "," AExp ")"                [strict]
                 | "throw"
   syntax Event ::= "Transfer" "(" Address "," Address "," Int ")"
                  | "Approval" "(" Address "," Address "," Int ")"
@@ -52,6 +52,13 @@ module ERC20
        <id> Owner </id>
        <spender> Spender </spender>
        <amount> Allowance </amount>
+
+  rule <k> approve(Spender, Allowance) => true ...</k>
+       <caller> Owner </caller>
+       <id> Owner </id>
+       <spender> Spender </spender>
+       <amount> _ => Allowance </amount>
+       <log> Log => Log Approval(Owner, Spender, Allowance) </log>
 
   rule <k> transfer(To, Value) => true ...</k>
        <caller> From </caller>
@@ -129,21 +136,21 @@ we would have to change the second requires clause of the rule below to
   rule <k> transferFrom(From, To, Value) => true ...</k>
        <account>...
          <id> From </id>
-         <balance> BalanceFrom => BalanceFrom -Int Value </balance>
+//         <balance> BalanceFrom => BalanceFrom -Int Value </balance>
          <spender> To </spender>
-         <amount> Allowance => Allowance -Int Value </amount>
+//         <amount> Allowance => Allowance -Int Value </amount>
        ...</account>
        <account>...
          <id> To </id>
-         <balance> BalanceTo => BalanceTo +Int Value </balance>
+//         <balance> BalanceTo => BalanceTo +Int Value </balance>
        ...</account>
-       <log> Log => Log Transfer(From, To, Value) </log>
-    requires To =/=Int From    // sanity check
-     andBool Value >=Int 0
-     andBool Value <=Int BalanceFrom
-     andBool Value <=Int Allowance   // `transfer` does not check allowance
-     andBool BalanceTo +Int Value <=Int MAXVALUE
-
+//       <log> Log => Log Transfer(From, To, Value) </log>
+//    requires To =/=Int From    // sanity check
+//     andBool Value >=Int 0
+//     andBool Value <=Int BalanceFrom
+//     andBool Value <=Int Allowance   // `transfer` does not check allowance
+//     andBool BalanceTo +Int Value <=Int MAXVALUE
+/*
 // self transfer; again, we assume withdrawal followed by deposit
   rule <k> transferFrom(From, From, Value) => true ...</k>
        <id> From </id>
@@ -179,12 +186,5 @@ we would have to change the second requires clause of the rule below to
     requires Value <Int 0
       orBool Value >Int BalanceFrom
       orBool Value >Int Allowance   // `transfer` does not check allowance
-
-  rule <k> approve(Spender, Allowance) => true ...</k>
-       <caller> Owner </caller>
-       <id> Owner </id>
-       <spender> Spender </spender>
-       <amount> _ => Allowance </amount>
-       <log> Log => Log Approval(Owner, Spender, Allowance) </log>
-
+*/
 endmodule

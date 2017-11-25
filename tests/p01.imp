@@ -1,8 +1,11 @@
-// -------------------------
-// Create some initial configuration first: accounts, allowances, caller
-// Make sure you add all the allowances for all the pairs of accounts :(
+// ---PREAMBLE----------
+// This preamble stays the same for all tests.
+// It creates some initial configuration: accounts, allowances, supply, caller.
+// Recall that this ERC20 semantics assumes that the total supply, all the
+// accounts and all their allowances (including those which are 0), as well
+// as the caller given.  Then the code is executed on the caller's behalf.
 int accounts, x, y, a, b, c;
-accounts = 7;
+accounts = 10;
 x = accounts;
 while(!(x <= 0)) {
   makeAccount(x, x*10);
@@ -13,12 +16,10 @@ while(!(x <= 0)) {
   }
   x = x + -1;
 }
+makeTotalSupply(550);
 makeCaller(7);
-// -------------------------
+// ---END-OF-PREAMBLE---
 
-// now execute some transactions
-a = balanceOf(4);
-c = balanceOf(4);
-transfer(4,a);
-b = balanceOf(4);
-transfer(4,balanceOf(2));
+// Test 01
+transferFrom(7,3,0);
+

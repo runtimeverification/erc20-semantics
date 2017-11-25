@@ -64,11 +64,46 @@ module ERC20
          <balance> BalanceTo => BalanceTo +Int Value </balance>
        ...</account>
        <log> Log => Log Transfer(From, To, Value) </log>
-    requires Value >=Int 0
+    requires To =/=Int From    // sanity check
+     andBool Value >=Int 0
      andBool Value <=Int BalanceFrom
      andBool BalanceTo +Int Value <=Int MAXVALUE
 
-  rule <k> transfer(_, Value) => throw ...</k>
+/*
+A self transfer is useless, so it will likely not happen in practice.
+Yet, a complete specification of ERC20 must nevertheless consider it.
+There are at least three possible behaviors to consider for self transfers:
+(1) Throw.
+(2) Ignore.
+(3) Make the actual transfer and log the event.
+The first and second cases are the easiest and cleanest to define
+semantically, but they may require more code and an additional runtime check
+in implementations, so they may result in more gas consumption (assuming the
+code is complex enough for compilers to optimize and eliminate the check).
+All ERC20 implementations that we've seen, however, do not special case
+self transfers, so they implicitly have the third behavior.
+Consequently, we also choose the third behavior in our specification.
+However we *do* special case the semantics of self transfers because:
+(1) Only one of the last two conditions in the `requires` clause above needs
+    to be checked for self transfers (see the note below); 
+(2) We believe it is important that developers of ERC20 implementations be
+    aware of the semantic choice and program verifiers explicitly consider the
+    case of self transfers.
+Note: implementations of `transfer` which first add `Value` to recipient's
+account and then subtract Value from sender's account will fail to satisfy the
+rule below, because of the potential overflow.  To favor those implementations
+we would have to change the second requires clause of the rule below to
+`BalanceFrom +Int Value <=Int MAXVALUE`.
+*/ 
+  rule <k> transfer(From, Value) => true ...</k>
+       <caller> From </caller>
+       <id> From </id>
+       <balance> BalanceFrom </balance>
+       <log> Log => Log Transfer(From, From, Value) </log>
+    requires Value >=Int 0
+     andBool Value <=Int BalanceFrom
+
+  rule <k> transfer(To, Value) => throw ...</k>
        <caller> From </caller>
        <account>...
          <id> From </id>
@@ -77,11 +112,19 @@ module ERC20
        <account>...
          <id> To </id>
          <balance> BalanceTo </balance>
-
        ...</account>
+    requires To =/=Int From   // sanity check
+     andBool (Value <Int 0
+      orBool Value >Int BalanceFrom
+      orBool BalanceTo +Int Value >Int MAXVALUE)
+
+// self transfer; again, we assume withdrawal followed by deposit
+  rule <k> transfer(From, Value) => throw ...</k>
+       <caller> From </caller>
+       <id> From </id>
+       <balance> BalanceFrom </balance>
     requires Value <Int 0
       orBool Value >Int BalanceFrom
-      orBool BalanceTo +Int Value >Int MAXVALUE
 
   rule <k> transferFrom(From, To, Value) => true ...</k>
        <account>...
@@ -95,10 +138,21 @@ module ERC20
          <balance> BalanceTo => BalanceTo +Int Value </balance>
        ...</account>
        <log> Log => Log Transfer(From, To, Value) </log>
+    requires To =/=Int From    // sanity check
+     andBool Value >=Int 0
+     andBool Value <=Int BalanceFrom
+     andBool Value <=Int Allowance   // `transfer` does not check allowance
+     andBool BalanceTo +Int Value <=Int MAXVALUE
+
+// self transfer; again, we assume withdrawal followed by deposit
+  rule <k> transferFrom(From, From, Value) => true ...</k>
+       <id> From </id>
+       <balance> BalanceFrom </balance>
+       <amount> Allowance </amount>
+       <log> Log => Log Transfer(From, From, Value) </log>
     requires Value >=Int 0
      andBool Value <=Int BalanceFrom
-     andBool Value <=Int Allowance
-     andBool BalanceTo +Int Value <=Int MAXVALUE
+     andBool Value <=Int Allowance   // `transfer` does not check allowance
 
   rule <k> transferFrom(From, To, Value) => throw ...</k>
        <account>...
@@ -111,10 +165,20 @@ module ERC20
          <id> To </id>
          <balance> BalanceTo </balance>
        ...</account>
-    requires Value <Int 0
+    requires To =/=Int From    // sanity check
+     andBool (Value <Int 0
       orBool Value >Int BalanceFrom
       orBool Value >Int Allowance
-      orBool BalanceTo +Int Value >Int MAXVALUE
+      orBool BalanceTo +Int Value >Int MAXVALUE)
+
+// self transfer; again, we assume withdrawal followed by deposit
+  rule <k> transferFrom(From, From, Value) => throw ...</k>
+       <id> From </id>
+       <balance> BalanceFrom </balance>
+       <amount> Allowance </amount>
+    requires Value <Int 0
+      orBool Value >Int BalanceFrom
+      orBool Value >Int Allowance   // `transfer` does not check allowance
 
   rule <k> approve(Spender, Allowance) => true ...</k>
        <caller> Owner </caller>

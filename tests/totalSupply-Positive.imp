@@ -1,0 +1,5 @@
+test.preamble();
+
+// Testing totalSupply() still works after changing it to a positive value.
+
+test.makeTotalSupply(737);

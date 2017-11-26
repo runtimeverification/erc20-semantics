@@ -1,0 +1,5 @@
+test.preamble();
+
+// Testing transfer(To,Value) when To = caller and Value = BalanceFrom.
+
+test.transfer(caller, 70);  // balance of caller is 70

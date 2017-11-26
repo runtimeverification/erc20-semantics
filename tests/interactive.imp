@@ -1,0 +1,32 @@
+test.preamble();
+
+// Interactive program
+while (true) {
+  print("--------------------------------\n");
+  print("Caller: "); print(caller); print("\n");
+  print("--------------------------------\n");
+  print(" 1 : totalSupply()\n");
+  print(" 2 : balanceOf(Id)\n");
+  print(" 3 : allowance(Owner,Spender)\n");
+  print(" 4 : approve(Spender,Allowance)\n");
+  print(" 5 : transfer(To,Value)\n");
+  print(" 6 : transferFrom(From,To,Value)\n");
+  print("--------------------------------\n");
+  print(" 0 : EXIT\n");
+  print("-1 : makeTotalSupply(Value)\n")
+  print("-2 : makeCaller(Id)\n")
+  print("-3 : makeBalance(Value)\n")
+  print("--------------------------------\n");
+  print("Command: ");
+  c = read();
+  if (c == -3) { test.makeBalance(read()); }
+  if (c == -2) { test.makeCaller(read()); }
+  if (c == -1) { test.makeTotalSupply(read()); }
+  if (c == 0 ) { halt; }
+  if (c == 1 ) { test.totalSupply(); }
+  if (c == 2 ) { test.balanceOf(read()); }
+  if (c == 3 ) { test.allowance(read(), read()); }
+  if (c == 4 ) { test.approve(read(), read()); }
+  if (c == 5 ) { test.transfer(read(), read()); }
+  if (c == 6 ) { test.transferFrom(read(), read(), read()); }
+}

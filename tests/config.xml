@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (c) 2014-2017 K Team. All Rights Reserved. -->
+<tests>
+
+  <test definition="imp.k"
+        programs="."
+        extension="imp"
+        exclude="interactive"
+        skip="pdf"
+        results="." >
+        <all-programs>
+          <krun-option name="--output" value="none" />
+        </all-programs>
+  </test>
+
+</tests>

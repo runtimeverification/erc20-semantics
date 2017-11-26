@@ -1,0 +1,5 @@
+test.preamble();
+
+// Testing allowance(Owner,Spender) when Owner = caller but Spender different.
+
+test.allowance(caller, 4);

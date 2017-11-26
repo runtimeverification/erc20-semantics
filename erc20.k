@@ -23,20 +23,25 @@ module ERC20
   configuration <ERC20>
                   <caller> 0 </caller>
                   <k> $PGM:K </k>
-                  <log> Events: </log>
-                  <supply> 0 </supply>
                   <accounts>
                     <account multiplicity="*">
                       <id> 0 </id>
                       <balance> 0 </balance>
-                      <allowances>
-                        <allowance multiplicity="*">
-                          <spender> 0 </spender>
-                          <amount> 0 </amount>
-                        </allowance>
-                      </allowances>
                     </account>
                   </accounts>
+                  <allowances>
+                    <allowance multiplicity="*">
+                      <owner> 0 </owner>
+                      <spenders>
+                        <allow multiplicity="*">
+                          <spender> 0 </spender>
+                          <amount> 0 </amount>
+                        </allow>
+                      </spenders>
+                    </allowance>
+                  </allowances>
+                  <log> Events: </log>
+                  <supply> 0 </supply>
                 </ERC20>
 
   rule MAXVALUE => 2 ^Int 256 -Int 1
@@ -44,18 +49,18 @@ module ERC20
   rule <k> totalSupply() => Total ...</k>
        <supply> Total </supply>
        
-  rule <k> balanceOf(Owner) => Value ...</k>
-       <id> Owner </id>
+  rule <k> balanceOf(Id) => Value ...</k>
+       <id> Id </id>
        <balance> Value </balance>
 
   rule <k> allowance(Owner, Spender) => Allowance ...</k>
-       <id> Owner </id>
+       <owner> Owner </owner>
        <spender> Spender </spender>
        <amount> Allowance </amount>
 
   rule <k> approve(Spender, Allowance) => true ...</k>
        <caller> Owner </caller>
-       <id> Owner </id>
+       <owner> Owner </owner>
        <spender> Spender </spender>
        <amount> _ => Allowance </amount>
        <log> Log => Log Approval(Owner, Spender, Allowance) </log>
@@ -66,14 +71,14 @@ module ERC20
 
   rule <k> transfer(To, Value) => true ...</k>
        <caller> From </caller>
-       <account>...
+       <account>
          <id> From </id>
          <balance> BalanceFrom => BalanceFrom -Int Value </balance>
-       ...</account>
-       <account>...
+       </account>
+       <account>
          <id> To </id>
          <balance> BalanceTo => BalanceTo +Int Value </balance>
-       ...</account>
+       </account>
        <log> Log => Log Transfer(From, To, Value) </log>
     requires To =/=Int From    // sanity check
      andBool Value >=Int 0
@@ -116,14 +121,14 @@ we would have to change the second requires clause of the rule below to
 
   rule <k> transfer(To, Value) => throw ...</k>
        <caller> From </caller>
-       <account>...
+       <account>
          <id> From </id>
          <balance> BalanceFrom </balance>
-       ...</account>
-       <account>...
+       </account>
+       <account>
          <id> To </id>
          <balance> BalanceTo </balance>
-       ...</account>
+       </account>
     requires To =/=Int From   // sanity check
      andBool (Value <Int 0
       orBool Value >Int BalanceFrom
@@ -138,16 +143,18 @@ we would have to change the second requires clause of the rule below to
       orBool Value >Int BalanceFrom
 
   rule <k> transferFrom(From, To, Value) => true ...</k>
-       <account>...
+       <caller> Caller </caller>
+       <owner> From </owner>
+       <spender> Caller </spender>
+       <amount> Allowance => Allowance -Int Value </amount>
+       <account>
          <id> From </id>
          <balance> BalanceFrom => BalanceFrom -Int Value </balance>
-         <spender> To </spender>
-         <amount> Allowance => Allowance -Int Value </amount>
-       ...</account>
-       <account>...
+       </account>
+       <account>
          <id> To </id>
          <balance> BalanceTo => BalanceTo +Int Value </balance>
-       ...</account>
+       </account>
        <log> Log => Log Transfer(From, To, Value) </log>
     requires To =/=Int From    // sanity check
      andBool Value >=Int 0
@@ -157,25 +164,30 @@ we would have to change the second requires clause of the rule below to
 
 // self transfer; again, we assume withdrawal followed by deposit
   rule <k> transferFrom(From, From, Value) => true ...</k>
+       <caller> Caller </caller>
+       <owner> From </owner>
+       <spender> Caller </spender>
+       <amount> Allowance => Allowance -Int Value </amount>
        <id> From </id>
        <balance> BalanceFrom </balance>
-       <amount> Allowance </amount>
        <log> Log => Log Transfer(From, From, Value) </log>
     requires Value >=Int 0
      andBool Value <=Int BalanceFrom
      andBool Value <=Int Allowance   // `transfer` does not check allowance
 
   rule <k> transferFrom(From, To, Value) => throw ...</k>
-       <account>...
+       <caller> Caller </caller>
+       <owner> From </owner>
+       <spender> Caller </spender>
+       <amount> Allowance </amount>
+       <account>
          <id> From </id>
          <balance> BalanceFrom </balance>
-         <spender> To </spender>
-         <amount> Allowance </amount>
-       ...</account>
-       <account>...
+       </account>
+       <account>
          <id> To </id>
          <balance> BalanceTo </balance>
-       ...</account>
+       </account>
     requires To =/=Int From    // sanity check
      andBool (Value <Int 0
       orBool Value >Int BalanceFrom
@@ -184,9 +196,12 @@ we would have to change the second requires clause of the rule below to
 
 // self transfer; again, we assume withdrawal followed by deposit
   rule <k> transferFrom(From, From, Value) => throw ...</k>
+       <caller> Caller </caller>
+       <owner> From </owner>
+       <spender> Caller </spender>
+       <amount> Allowance </amount>
        <id> From </id>
        <balance> BalanceFrom </balance>
-       <amount> Allowance </amount>
     requires Value <Int 0
       orBool Value >Int BalanceFrom
       orBool Value >Int Allowance   // `transfer` does not check allowance

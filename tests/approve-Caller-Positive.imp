@@ -1,0 +1,7 @@
+test.preamble();
+
+// Testing approve(Spender,Allowance) when Spender = caller and Allowance > 0.
+// Approving allowance to yourself is needed in order to allow calls to
+// transferFrom from yourself.
+
+test.approve(7,37);

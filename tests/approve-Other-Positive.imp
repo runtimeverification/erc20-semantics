@@ -1,0 +1,5 @@
+test.preamble();
+
+// Testing approve(Spender,Allowance) when Spender != caller and Allowance > 0.
+
+test.approve(8, 42);

@@ -1,0 +1,9 @@
+test.preamble();
+
+// Testing allowance after switching caller and approving new allowance.
+
+test.allowance(9, 7);   // check current allowance of 9 for 7 is 0
+test.makeCaller(9);     // switch caller to 9
+test.approve(7, 25);    // approve allowance 25 (of 9) to 7
+test.makeCaller(7);     // switch caller back to 7
+test.allowance(9, 7);   // confirm allowance of 9 for 7 still 25

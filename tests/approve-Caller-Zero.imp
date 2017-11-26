@@ -1,0 +1,6 @@
+test.preamble();
+
+// Testing approve(Spender,Allowance) when Spender = caller and Allowance = 0.
+// Might be useful in order to throw when transferring to yourself.
+
+test.approve(caller, 0);

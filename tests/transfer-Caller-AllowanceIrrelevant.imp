@@ -4,5 +4,5 @@ test.preamble();
 // specifically lower than Value.  So the allowance is irrelevant for transfer.
 // The allowance is only relevant for transferFrom.
 
-test.approve(7,20);   // set allowance for caller (7) to itself below the transfered value
-test.transfer(7,23);  // transfer 23 to itself, which is larger than the allowance 20
+test.approve(caller, 20);   // set caller allowance for itself below 23
+test.transfer(caller, 23);  // transfer 23 to itself, larger than allowance 20

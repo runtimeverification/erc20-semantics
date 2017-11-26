@@ -1,0 +1,5 @@
+test.preamble();
+
+// Testing transfer(To,Value) when To != caller and Value > 0.
+
+test.transfer(4, 23);

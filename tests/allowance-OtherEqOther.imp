@@ -2,4 +2,4 @@ test.preamble();
 
 // Testing allowance(Owner,Spender) when Spender = Owner != caller
 
-test.allowance(2,2);
+test.allowance(2, 2);

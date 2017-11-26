@@ -25,13 +25,13 @@ module ERC20
                   <k> $PGM:K </k>
                   <log> Events: </log>
                   <supply> 0 </supply>
-                  <accounts map="">
+                  <accounts>
                     <account multiplicity="*">
-                      <id key=""> 0 </id>
+                      <id> 0 </id>
                       <balance> 0 </balance>
-                      <allowances map="">
+                      <allowances>
                         <allowance multiplicity="*">
-                          <spender key=""> 0 </spender>
+                          <spender> 0 </spender>
                           <amount> 0 </amount>
                         </allowance>
                       </allowances>
@@ -59,6 +59,10 @@ module ERC20
        <spender> Spender </spender>
        <amount> _ => Allowance </amount>
        <log> Log => Log Approval(Owner, Spender, Allowance) </log>
+    requires Allowance >=Int 0
+
+  rule <k> approve(_, Allowance) => throw ...</k>
+    requires Allowance <Int 0
 
   rule <k> transfer(To, Value) => true ...</k>
        <caller> From </caller>

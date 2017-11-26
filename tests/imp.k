@@ -35,6 +35,7 @@ module IMP
                 | makeAllowance(AExp,AExp)  [strict]
                 | makeTotalSupply(AExp)     [strict]
                 | makeCaller(AExp)          [strict]
+                | makeBalance(AExp)         [strict]
                 | "makeThrowAsPrintTrue"
                 | "makeThrowAsPrintFalse"
                 | "makePrintStringsTrue"
@@ -93,8 +94,9 @@ module IMP
                              <allowances> .Bag </allowances> </account> ...</accounts>
   rule <k> makeAllowance(A,B) => . ...</k> <id> A </id>
        <allowances>... .Bag => <allowance> <spender> B </spender> <amount> 0 </amount> </allowance> ...</allowances>
-  rule <k> makeTotalSupply(I) => . ...</k> <supply> _ => I </supply>
+  rule <k> makeTotalSupply(I) => . ...</k> <supply> _ => I </supply> requires I >=Int 0
   rule <k> makeCaller(I:Int) => . ...</k> <caller> _ => I </caller>
+  rule <k> makeBalance(I:Int) => . ...</k> <caller> Owner </caller> <id> Owner </id> <balance> _ => I </balance>
   rule <k> makeThrowAsPrintTrue  => . ...</k> <throwAsPrint> _ => true </throwAsPrint>
   rule <k> makeThrowAsPrintFalse => . ...</k> <throwAsPrint> _ => false </throwAsPrint>
   rule <k> throw => false ...</k> <throwAsPrint> true </throwAsPrint> <out>... .List => ListItem("THROW\n") </out>

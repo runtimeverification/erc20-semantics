@@ -136,21 +136,21 @@ we would have to change the second requires clause of the rule below to
   rule <k> transferFrom(From, To, Value) => true ...</k>
        <account>...
          <id> From </id>
-//         <balance> BalanceFrom => BalanceFrom -Int Value </balance>
+         <balance> BalanceFrom => BalanceFrom -Int Value </balance>
          <spender> To </spender>
-//         <amount> Allowance => Allowance -Int Value </amount>
+         <amount> Allowance => Allowance -Int Value </amount>
        ...</account>
        <account>...
          <id> To </id>
-//         <balance> BalanceTo => BalanceTo +Int Value </balance>
+         <balance> BalanceTo => BalanceTo +Int Value </balance>
        ...</account>
-//       <log> Log => Log Transfer(From, To, Value) </log>
-//    requires To =/=Int From    // sanity check
-//     andBool Value >=Int 0
-//     andBool Value <=Int BalanceFrom
-//     andBool Value <=Int Allowance   // `transfer` does not check allowance
-//     andBool BalanceTo +Int Value <=Int MAXVALUE
-/*
+       <log> Log => Log Transfer(From, To, Value) </log>
+    requires To =/=Int From    // sanity check
+     andBool Value >=Int 0
+     andBool Value <=Int BalanceFrom
+     andBool Value <=Int Allowance   // `transfer` does not check allowance
+     andBool BalanceTo +Int Value <=Int MAXVALUE
+
 // self transfer; again, we assume withdrawal followed by deposit
   rule <k> transferFrom(From, From, Value) => true ...</k>
        <id> From </id>
@@ -186,5 +186,5 @@ we would have to change the second requires clause of the rule below to
     requires Value <Int 0
       orBool Value >Int BalanceFrom
       orBool Value >Int Allowance   // `transfer` does not check allowance
-*/
+
 endmodule

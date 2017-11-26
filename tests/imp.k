@@ -1,4 +1,4 @@
-requires "../other_approaches/erc20-AllowanceAsMap.k"
+requires "../erc20.k"
 
 module IMP
   import ERC20
@@ -35,12 +35,18 @@ module IMP
                 | makeAllowance(AExp,AExp)  [strict]
                 | makeTotalSupply(AExp)     [strict]
                 | makeCaller(AExp)          [strict]
+                | "makeThrowAsPrintTrue"
+                | "makeThrowAsPrintFalse"
+                | "makePrintStringsTrue"
+                | "makePrintStringsFalse"
 
   configuration <IMP>
                   initERC20Cell(Init)
                   <state> .Map </state>
                   <in color="magenta" stream="stdin"> .List </in>
                   <out color="Orchid" stream="stdout"> .List </out>
+                  <throwAsPrint> false </throwAsPrint>
+                  <printStrings> true </printStrings>
                 </IMP>
 
   syntax KResult ::= Int | Bool | String
@@ -73,24 +79,27 @@ module IMP
   rule <k> int (X,Xs => Xs);_ </k> <state> Rho:Map (.Map => X|->0) </state>
     requires notBool (X in keys(Rho))
   rule int .Ids; S => S  [structural]
-  rule <k> print(I:Int) => . ...</k>
-       <out>... .List => ListItem(I) </out>
-  rule <k> print(Str:String) => . ...</k>
-       <out>... .List => ListItem(Str) </out>
-  rule <k> halt; ~> _ => . </k>
+  rule <k> print(I:Int) => . ...</k> <printStrings> true  </printStrings> <out>... .List => ListItem(I) </out>
+  rule <k> print(I:Int) => . ...</k> <printStrings> false </printStrings> <out>... .List => ListItem(I) ListItem("\n") </out>
+  rule <k> print(Str:String) => . ...</k> <printStrings> true  </printStrings> <out>... .List => ListItem(Str) </out>
+  rule <k> print(Str:String) => . ...</k> <printStrings> false </printStrings>
+  rule <k> halt ~> _ => . </k>
 
-  rule true; => .
+  rule _:Bool; => .
   rule _:Int; => .
   rule S:Stmt; => S
   rule <k> makeAccount(A,V) => . ...</k>
-//       <accounts>... .Bag => <account> <id> A </id> <balance> V </balance>
-//                             <allowances> .Bag </allowances> </account> ...</accounts>
        <accounts>... .Bag => <account> <id> A </id> <balance> V </balance>
-                             <allowances> .Map </allowances> </account> ...</accounts>
+                             <allowances> .Bag </allowances> </account> ...</accounts>
   rule <k> makeAllowance(A,B) => . ...</k> <id> A </id>
-//       <allowances>... .Bag => <allowance> <spender> B </spender> <amount> 0 </amount> </allowance> ...</allowances>
-       <allowances> Rho => Rho[B <- 0] </allowances>
+       <allowances>... .Bag => <allowance> <spender> B </spender> <amount> 0 </amount> </allowance> ...</allowances>
   rule <k> makeTotalSupply(I) => . ...</k> <supply> _ => I </supply>
-  rule <k> makeCaller(I:Int) => . ...</k>
-       <caller> _ => I </caller>
+  rule <k> makeCaller(I:Int) => . ...</k> <caller> _ => I </caller>
+  rule <k> makeThrowAsPrintTrue  => . ...</k> <throwAsPrint> _ => true </throwAsPrint>
+  rule <k> makeThrowAsPrintFalse => . ...</k> <throwAsPrint> _ => false </throwAsPrint>
+  rule <k> throw => false ...</k> <throwAsPrint> true </throwAsPrint> <out>... .List => ListItem("THROW\n") </out>
+
+  rule <k> makePrintStringsTrue  => . ...</k> <printStrings> _ => true  </printStrings>
+  rule <k> makePrintStringsFalse => . ...</k> <printStrings> _ => false </printStrings>
+
 endmodule

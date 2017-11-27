@@ -1,0 +1,18 @@
+7 is approving allowance 40 for 9
+Changing the caller to 9
+9 is transferring 10 from 7 to 5
+Balance of 7 is 60
+Balance of 5 is 60
+Allowance of 7 for 9 is 30
+9 is transferring 10 from 7 to 6
+Balance of 7 is 50
+Balance of 6 is 70
+Allowance of 7 for 9 is 20
+9 is transferring 10 from 7 to 7
+Balance of 7 is 50
+Balance of 7 is 50
+Allowance of 7 for 9 is 10
+9 is transferring 10 from 7 to 9
+Balance of 7 is 40
+Balance of 9 is 100
+Allowance of 7 for 9 is 0

@@ -1,0 +1,7 @@
+7 is approving allowance 40 for 9
+Changing the caller to 9
+9 is transferring 41 from 7 to 9
+THROW
+Balance of 7 is 70
+Balance of 9 is 90
+Allowance of 7 for 9 is 40

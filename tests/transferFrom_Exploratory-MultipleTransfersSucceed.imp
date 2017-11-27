@@ -1,0 +1,11 @@
+test.preamble();
+
+// Exploratory testing of transferFrom(From,To,Value).
+// All conditions are met, so it is expected to pass.
+
+test.approve(9, 40);          // set allowance of caller (7) for 9
+test.makeCaller(9);           // switch to 9
+test.transferFrom(7, 5, 10);
+test.transferFrom(7, 6, 10);
+test.transferFrom(7, 7, 10);
+test.transferFrom(7, 9, 10);

@@ -1,0 +1,13 @@
+test.preamble();
+
+// Testing transferFrom(From,To,Value) when From = To.
+// Still no overflow, because we assume deduction first and then deposit.
+// Implementation that do deposit first and then deduct overflow on this test.
+// Recall that account 1 has 10 tokens and 2^256 (a 78 digit number) and is:
+// 115792089237316195423570985008687907853269984665640564039457584007913129639936
+
+x = 115792089237316195423570985008687907853269984665640564039457584007913129639925;
+test.makeBalance(x);
+test.approve(9, 11);
+test.makeCaller(9);           // switch to 9
+test.transferFrom(7, 7, 11);

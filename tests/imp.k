@@ -147,22 +147,29 @@ makeThrowAsPrintTrue;
   syntax Stmt ::= "test.makeBalance" "(" AExp ")"   [macro]
   rule test.makeBalance(Value) =>
     v = Value;
+    print("Changing the balance of ");
+    print(caller);
+    print(" to ");
+    print(v);
+    print("\n");
     makeBalance(v);
     test.balanceOf(caller);
 
   syntax Stmt ::= "test.makeCaller" "(" AExp ")"   [macro]
   rule test.makeCaller(Id) =>
     caller = Id;
-    makeCaller(caller);
-    print("Caller has been switched to ");
+    print("Changing the caller to ");
     print(caller);
     print("\n");
+    makeCaller(caller);
 
   syntax Stmt ::= "test.makeTotalSupply" "(" AExp ")"   [macro]
   rule test.makeTotalSupply(Value) =>
     v = Value;
+    print("Changing the total supply to ");
+    print(v);
+    print("\n");
     makeTotalSupply(v);
-    test.totalSupply();
 
   syntax Stmt ::= "test.totalSupply" "(" ")"   [macro]
   rule test.totalSupply() =>
@@ -195,19 +202,24 @@ makeThrowAsPrintTrue;
   rule test.approve(Spender, Allowance) =>
     b = Spender;
     v = Allowance;
-    approve(b, v);
-    print("Allowance of ");
     print(caller);
+    print(" is approving allowance ");
+    print(v);
     print(" for ");
     print(b);
-    print(" is ");
-    print(allowance(caller,b));
     print("\n");
+    approve(b, v);
 
   syntax Stmt ::= "test.transfer" "(" AExp "," AExp ")"  [macro]
   rule test.transfer(To, Value) =>
     b = To;
     v = Value;
+    print(caller);
+    print(" is transferring ");
+    print(v);
+    print(" to ");
+    print(b);
+    print("\n");
     transfer(b,v);
     print("Balance of ");
     print(caller);
@@ -232,6 +244,14 @@ makeThrowAsPrintTrue;
     a = From;
     b = To;
     v = Value;
+    print(caller);
+    print(" is transferring ");
+    print(v);
+    print(" from ");
+    print(a);
+    print(" to ");
+    print(b);
+    print("\n");
     transferFrom(a,b,v);
     print("Balance of ");
     print(a);

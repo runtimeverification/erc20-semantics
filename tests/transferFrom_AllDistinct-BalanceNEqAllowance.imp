@@ -1,0 +1,8 @@
+test.preamble();
+
+// Testing transferFrom(From,To,Value) when caller, From and To are distinct.
+// All conditions are met, so it is expected to pass.
+
+test.approve(9, 40);          // set allowance of caller (7) for 9
+test.makeCaller(9);           // switch to 9
+test.transferFrom(7, 5, 23);  // transfer 23 from 7 to 5

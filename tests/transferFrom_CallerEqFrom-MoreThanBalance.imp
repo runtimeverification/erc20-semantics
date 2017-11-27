@@ -1,0 +1,7 @@
+test.preamble();
+
+// Testing transferFrom(From,To,Value) when From = caller
+// and Value > BalanceFrom.
+
+test.approve(caller, 71);
+test.transferFrom(caller, 4, 71)  // balance of caller is 70

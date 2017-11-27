@@ -1,0 +1,12 @@
+test.preamble();
+
+// Testing transferFrom(From,To,Value) when From = To.
+// No overflow, regardless of how account is updated 
+// Recall that 2^256 (a 78 digit number) and is:
+// 115792089237316195423570985008687907853269984665640564039457584007913129639936
+
+x = 115792089237316195423570985008687907853269984665640564039457584007913129639925;
+test.makeBalance(x);
+test.approve(9, 10);
+test.makeCaller(9);           // switch to 9
+test.transferFrom(7, 7, 10);

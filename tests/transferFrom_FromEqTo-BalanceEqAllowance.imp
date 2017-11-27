@@ -1,0 +1,8 @@
+test.preamble();
+
+// Testing transferFrom(From,To,Value) when From = To.
+// Balance and Allowance are equal.
+
+test.approve(9, 70);          // set allowance of caller (7) for 9
+test.makeCaller(9);           // switch to 9
+test.transferFrom(7, 7, 23);  // transfer 23 from 7 to itself

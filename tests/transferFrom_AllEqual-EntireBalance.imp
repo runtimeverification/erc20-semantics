@@ -1,0 +1,7 @@
+test.preamble();
+
+// Testing transferFrom(From,To,Value) when From = To = caller.
+// Transfer entire balance to yourself.
+
+test.approve(caller, 70);   // allow entire balance
+test.transferFrom(caller, caller, 70);  // transfer entire balance

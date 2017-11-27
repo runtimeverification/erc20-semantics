@@ -1,0 +1,8 @@
+test.preamble();
+
+// Testing transferFrom(From,To,Value) when From = To = caller.
+// Allowance assigned specifically lower than Value.
+// So the allowance is relevant in this case (unlike for transfer).
+
+test.approve(caller, 20);   // set allowance of caller for itself below 23
+test.transferFrom(caller, caller, 23);  // transfer 23 larger than allowance 20

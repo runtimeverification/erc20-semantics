@@ -1,0 +1,8 @@
+test.preamble();
+
+// Testing transferFrom(From,To,Value) when caller, From and To are distinct.
+// Throw because Value > BalanceFrom.
+
+test.approve(9, 100);         // set allowance of caller (7) for 9
+test.makeCaller(9);           // switch to 9
+test.transferFrom(7, 5, 71);  // transfer 71 from 7 to 5; balance of 7 is 70

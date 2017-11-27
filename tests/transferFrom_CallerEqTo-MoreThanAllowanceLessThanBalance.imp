@@ -1,0 +1,8 @@
+test.preamble();
+
+// Testing transferFrom(From,To,Value) when To = caller.
+// Throw because Value > Allowance.
+
+test.approve(9, 40);          // set allowance of caller (7) for 9
+test.makeCaller(9);           // switch to 9
+test.transferFrom(7, 9, 41);  // transfer 41 from 7 to 9; allowance of 9 is 40

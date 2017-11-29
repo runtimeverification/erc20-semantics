@@ -22,7 +22,7 @@ infrastructures.
 
 ## Abstract
 
-[ERC20](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md)
+The [ERC20 standard](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md)
 is one of the most important standards for the implementation of tokens
 within Ethereum smart contracts.
 ERC20 provides basic functionality to transfer tokens and to be approved so
@@ -30,9 +30,14 @@ they can be spent by another on-chain third party.
 Here we provide a complete formalization of ERC20 in
 [K](http://kframework.org).
 Specifically, we provide a formal executable semantics of ERC20.
-The semantics clarifies what data (accounts, allowances, etc.) is handled by
-the various ERC20 functions, and the precise meaning of the functions on such
+Our semantics clarifies what data (accounts, allowances, etc.) are handled by
+the various ERC20 functions and the precise meaning of the functions on such
 data.
+It also clarifies the semantics of *all* the corner cases that the ERC20
+standard omits to discuss, such as transfers from yourself to yourself
+or transfers that result in arithmetic overflows,
+following the most natural implementations that aim at minimizing gas
+consumption.
 
 ## Motivation
 
@@ -231,9 +236,11 @@ Newly generated events are appended at the end of the log.
 
 The `<supply/>` cell holds the total token supply.
 
-For the semantics of ERC20, we assume the configuration is already
-initialized and the caller is known.
-In our simple programming language on top of ERC20 and in our tests
+For the reminder of the semantics, we assume the configuration is already
+correctly initialized (i.e., all the account ids are distinct, the
+balances are non-negative, and the total supply is the sum of all the
+balances) and the caller is known.
+In our simple programming language that we define on top of the ERC20 semantics
 we define macros that can be used to initialize the configuration.
 
 ### Semantics
@@ -264,6 +271,8 @@ is to be reduced, or *rewritten* with its rule above, instantly
 wherever it occurs (rewriting of non-function symbols is constrained
 by the context).
 
+#### totalSupply
+
 We start with the semantics of `totalSupply()`:
 ```{.k}
   rule <k> totalSupply() => Total ...</k>
@@ -280,6 +289,8 @@ In words, the rule says: When requested to compute, `totalSupply()`
 rewrites to the `Total` contents of the `<supply/>` cell.
 Note that rules only need to mention the cells they need; the rest of
 the configuration is inferred automatically and rules do not change it.
+
+#### balanceOf
 
 We next define the semantics of `balanceOf` in a similar but slightly
 more involved way:
@@ -309,6 +320,7 @@ verbose rules, like the following equivalent rule:
          </account>
        ...</accounts>
 ```
+#### allowance
 
 The rule for `allowance(Owner,Spender)` makes even more aggressive use of
 configuration abstraction:
@@ -320,11 +332,19 @@ configuration abstraction:
        <amount> Allowance </amount>
 ```
 
-Above, the `Owner` is matched in some `<allowance/> cell, then the `Spender`
+Above, the `Owner` is matched in some `<allowance/>` cell, then the `Spender`
 is matched inside one of owner's `<allow/>` cells, and then the spender's
 allowed `Amount` is returned as the result of the `allowance` function call.
 
-The semantics of `approve(Spender, Allowance)` is trickier.
+#### approve
+
+The semantics of `approve(Spender, Allowance)` is trickier, because it requires
+three changes to the configuration (there are three `=>` arrows):
+the function call itself becomes `true` in the `<k/>` cell;
+at the same time, the allowance of the `Caller`
+(matched in the `<caller/>` cell) for the `Spender` changes to the new
+`Allowance`;
+finally, an `Approve` event is logged:
 
 ```{.k}
   rule <k> approve(Spender, Allowance) => true ...</k>
@@ -334,10 +354,41 @@ The semantics of `approve(Spender, Allowance)` is trickier.
        <amount> _ => Allowance </amount>
        <log> Log => Log Approval(Owner, Spender, Allowance) </log>
     requires Allowance >=Int 0
+```
+Above, `_` is an anonymous/nameless variable; it matches the current
+`<amount/>` in order to rewrite it to `Allowance`.
+K rules can have side conditions on the matched variables, which are introduced
+with the keyword `requires`.
+Note that we explicitly required the `Allowance` to be positive, which may
+be redundant in some languages whose type system already ensures the the values
+are positive.
+But here we attempt to be as general and safe as possible.
+For completeness, we also include the following rule which throws when the
+allowance to approve is negative:
 
+```{.k}
   rule <k> approve(_, Allowance) => throw ...</k>
     requires Allowance <Int 0
+```
 
+The negative allowance case is not discussed in the ERC20 standard, because
+the `uint256` type guarantees integers to be positive.
+We believe that the throwing semantics above is more appropriate than having
+`approve` return `false`.
+
+#### transfer
+
+The `transfer(To, Value)` function distinguishes four cases, depending upon
+whether the caller transfers the `Value` to itself or to another account, and
+whether the function succeeds or throws.
+
+##### Case 1: Caller different from receiver; success
+
+Let us discuss the successful cases first.
+If the caller transfers to a *different* account and all the side conditions
+are satisfied, then the two balances and the log are updated accordingly:
+
+```{.k}
   rule <k> transfer(To, Value) => true ...</k>
        <caller> From </caller>
        <account>
@@ -353,33 +404,49 @@ The semantics of `approve(Spender, Allowance)` is trickier.
      andBool Value >=Int 0
      andBool Value <=Int BalanceFrom
      andBool BalanceTo +Int Value <=Int MAXVALUE
+```
 
-/*
+Above, `From` is the caller (matched in the `<caller/>` cell) and
+`BalanceFrom` is its balance (matched in the caller's account `<balance/>`
+cell), while `BalanceTo` is the receiver's balance (matched in the `To`'s
+`<balance/>` cell).
+Since we assume the configuration is correctly initialized, `From` should
+always be different from `To` because they are ids of different `<account/>`
+cells; nevertheless, we prefer to add a sanity check to catch potential errors
+in our semantics or in implementations of it.
+The other side conditions require that the transfered value is positive and
+no larger than the `BalanceFrom`, and that the resulting `BalanceTo` of the
+receiver does not overflow.
+The ERC20 standard does not cover overflow, but many implementations throw
+when overflow occurs, so we prefer to do the same in our specification
+(the throwing rules follow the successful ones).
+
+##### Case 2: Caller same as receiver; success
+
+Next we discuss successful transfers from the caller to itself.
 A self transfer is useless, so it will likely not happen in practice.
 Yet, a complete specification of ERC20 must nevertheless consider it.
 There are at least three possible behaviors to consider for self transfers:
-(1) Throw.
-(2) Ignore.
-(3) Make the actual transfer and log the event.
+
+1. Throw.
+2. Ignore.
+3. Make the actual transfer and log the event.
+
 The first and second cases are the easiest and cleanest to define
 semantically, but they may require more code and an additional runtime check
-in implementations, so they may result in more gas consumption (assuming the
-code is complex enough for compilers to optimize and eliminate the check).
+in implementations, so they may result in more gas consumption.
 All ERC20 implementations that we've seen, however, do not special case
 self transfers, so they implicitly have the third behavior.
 Consequently, we also choose the third behavior in our specification.
 However we *do* special case the semantics of self transfers because:
-(1) Only one of the last two conditions in the `requires` clause above needs
-    to be checked for self transfers (see the note below); 
-(2) We believe it is important that developers of ERC20 implementations be
-    aware of the semantic choice and program verifiers explicitly consider the
-    case of self transfers.
-Note: implementations of `transfer` which first add `Value` to recipient's
-account and then subtract Value from sender's account will fail to satisfy the
-rule below, because of the potential overflow.  To favor those implementations
-we would have to change the second requires clause of the rule below to
-`BalanceFrom +Int Value <=Int MAXVALUE`.
-*/ 
+
+1. Only one of the last two conditions in the `requires` clause above needs
+to be checked for self transfers (see the note below); and
+2. We believe it is important that developers of ERC20 implementations be
+aware of the semantic choice and program verifiers explicitly consider the
+case of self transfers.
+
+```{.k}
   rule <k> transfer(From, Value) => true ...</k>
        <caller> From </caller>
        <id> From </id>
@@ -387,7 +454,21 @@ we would have to change the second requires clause of the rule below to
        <log> Log => Log Transfer(From, From, Value) </log>
     requires Value >=Int 0
      andBool Value <=Int BalanceFrom
+```
 
+**Note:** implementations of `transfer` which first add `Value` to recipient's
+account and then subtract `Value` from sender's account will fail to satisfy
+the rule above, because of the potential overflow.
+To favor those implementations we would have to change the second requires
+clause of the rule above to `BalanceFrom +Int Value <=Int MAXVALUE`.
+
+##### Case 3: Caller different from receiver; throw
+
+This is the complement rule of Case 1 (distinct caller and receiver),
+which throws when the transfered `Value` is negative or exceeds the
+`BalanceFrom`, or when overflow happens at receiver:
+
+```{.k}
   rule <k> transfer(To, Value) => throw ...</k>
        <caller> From </caller>
        <account>
@@ -402,7 +483,14 @@ we would have to change the second requires clause of the rule below to
      andBool (Value <Int 0
       orBool Value >Int BalanceFrom
       orBool BalanceTo +Int Value >Int MAXVALUE)
+```
 
+##### Case 4: Caller same as receiver; throw
+
+Finally, a transfer from the caller to itself throws when the `Value`
+`Value` is negative or exceeds the `BalanceFrom`:
+
+```{.k}
 // self transfer; again, we assume withdrawal followed by deposit
   rule <k> transfer(From, Value) => throw ...</k>
        <caller> From </caller>
@@ -410,7 +498,31 @@ we would have to change the second requires clause of the rule below to
        <balance> BalanceFrom </balance>
     requires Value <Int 0
       orBool Value >Int BalanceFrom
+```
 
+Note that the rule above is a true special case that the specification has to
+explicitly treat, and not a trivial instance of the rule preceding it.
+Indeed, we chose to not include the overflow condition.
+If we included it, then most implementations of the ERC20 token would be
+incorrect, because they could not formally guarantee that transfer to self
+throws in case of overflow.
+Like in Case 2, they would need to first deposit and then withdraw `Value`,
+but in that case the side condition `Value >Int Balance` needs to be
+eliminated, because a transfer to self would succeed also in that case.
+
+#### transferFrom
+
+Like `transfer`, `transferFrom(From, To, Value)` also has four cases.
+However, unlike `transfer`, we now need to also check and update the
+`Caller`'s `Allowance`.
+
+##### Case 1: `From` different from `To`; success
+
+When `From` different from `To`, indicated by the fact that they are ids of
+different accounts, a successful transfer additionally requires that the
+`Allowance` of `From` for the `Caller` is larger than or equal to `Value`:
+
+```{.k}
   rule <k> transferFrom(From, To, Value) => true ...</k>
        <caller> Caller </caller>
        <owner> From </owner>
@@ -430,8 +542,17 @@ we would have to change the second requires clause of the rule below to
      andBool Value <=Int BalanceFrom
      andBool Value <=Int Allowance   // `transfer` does not check allowance
      andBool BalanceTo +Int Value <=Int MAXVALUE
+```
 
-// self transfer; again, we assume withdrawal followed by deposit
+Note that a `Transfer` event has also been logged.
+
+##### Case 2: `From` same as `To`; success
+
+The case of a self transfer (first two arguments of `transferFrom` in the
+rule below are equal, `From`) is similar to that of `transfer`, but the
+allowance of the `Caller` also needs to be checked and updated:
+
+```{.k}
   rule <k> transferFrom(From, From, Value) => true ...</k>
        <caller> Caller </caller>
        <owner> From </owner>
@@ -443,7 +564,22 @@ we would have to change the second requires clause of the rule below to
     requires Value >=Int 0
      andBool Value <=Int BalanceFrom
      andBool Value <=Int Allowance   // `transfer` does not check allowance
+```
 
+Checking and updating the `Caller`'s allowance may look unnecessary for
+transfers from an account to itself, but if we do not do it then
+implementations would require to treat this case as special and thus would
+require more code and computation and thus more gas.
+Like for `transfer`, our specification above favors implementations that
+first withdraw and then deposit the `Value`.
+To favour implementations that first deposit and then withdraw value, we would
+need to replace the last side condition above with an overflow check.
+
+##### Case 3: `From` different from `To`; throw
+
+This is simply the complement of Case 1:
+
+```{.k}
   rule <k> transferFrom(From, To, Value) => throw ...</k>
        <caller> Caller </caller>
        <owner> From </owner>
@@ -462,8 +598,13 @@ we would have to change the second requires clause of the rule below to
       orBool Value >Int BalanceFrom
       orBool Value >Int Allowance
       orBool BalanceTo +Int Value >Int MAXVALUE)
+```
 
-// self transfer; again, we assume withdrawal followed by deposit
+##### Case 4: `From` same as `To`; throw
+
+This is simply the complement of Case 2:
+
+```{.k}
   rule <k> transferFrom(From, From, Value) => throw ...</k>
        <caller> Caller </caller>
        <owner> From </owner>

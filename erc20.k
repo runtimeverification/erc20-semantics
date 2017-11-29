@@ -3,10 +3,9 @@
 //
 
 module ERC20
-  syntax Int ::= "MAXVALUE"  [function]
+  syntax Value   ::= Int  // this can be changed
   syntax Address ::= Int  // this can be changed
-  syntax AExp ::= Int
-                | Address
+  syntax AExp ::= Value | Address
                 | "totalSupply" "(" ")"
                 | "balanceOf" "(" AExp ")"                       [strict]
                 | "allowance" "(" AExp "," AExp ")"              [strict]
@@ -15,8 +14,8 @@ module ERC20
                 | "transfer" "(" AExp "," AExp ")"               [strict]
                 | "transferFrom" "(" AExp "," AExp "," AExp ")"  [strict]
                 | "throw"
-  syntax Event ::= "Transfer" "(" Address "," Address "," Int ")"
-                 | "Approval" "(" Address "," Address "," Int ")"
+  syntax Event ::= "Transfer" "(" Address "," Address "," Value ")"
+                 | "Approval" "(" Address "," Address "," Value ")"
   syntax EventLog ::= "Events:"
                     | EventLog Event
 
@@ -44,6 +43,7 @@ module ERC20
                   <supply> 0 </supply>
                 </ERC20>
 
+  syntax Int ::= "MAXVALUE"  [function]
   rule MAXVALUE => 2 ^Int 256 -Int 1
 
   rule <k> totalSupply() => Total ...</k>

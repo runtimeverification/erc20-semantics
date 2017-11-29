@@ -1,7 +1,7 @@
 ERC20: Formal Executable Specification
 ======================================
 
-Author: [Grigore Rosu](http://fsl.cs.illinois.edu/grosu)
+Authors: [Philip Daian](http://pdaian.com/) and [Grigore Rosu](http://fsl.cs.illinois.edu/grosu)
 
 Date: November 28, 2017
 

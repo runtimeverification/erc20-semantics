@@ -9,3 +9,4 @@ for safety.
 - We assume the initial configuration is correctly constructed.  That is, all
 the accounts are created, and each account contains all its allowances,
 including an allowance for itself (needed in case of a transferFrom to itself).
+- caller is set to 7 in preamble

@@ -1,24 +1,23 @@
-ERC20: Formal Executable Specification
-======================================
+ERC20-K: Formal Executable Specification of ERC20
+=================================================
 
 Authors: [Philip Daian](http://pdaian.com/) and [Grigore Rosu](http://fsl.cs.illinois.edu/grosu)
 
 Date: November 28, 2017
 
-**Acknowledgments:** Warm thanks to the K team who defined the 
+**Acknowledgments:** Warmest thanks to the K team who defined the 
 [KEVM](https://github.com/kframework/evm-semantics) semantics
 (see
-[our technical report](https://www.ideals.illinois.edu/handle/2142/97207), too)
+[technical report](https://www.ideals.illinois.edu/handle/2142/97207), too)
 and verified smart contracts for ERC20 compliance.
 It is their effort that inevitably led to the quest for a formal specification
 of ERC20.
 We also thank [IOHK](http://iohk.io) for their generous support
-of the [KEVM](https://github.com/kframework/evm-semantics) and
-[IELE](https://github.com/runtimeverification/iele-semantics)
-projects; the latter, in particular, led to the question of whether
-the ERC20 specification can be defined in a way that does not depend on
-the EVM and thus can be used in combination with other computational
-infrastructures.
+of both [KEVM](https://github.com/kframework/evm-semantics) and
+[IELE](https://github.com/runtimeverification/iele-semantics);
+IELE, in particular, led to the question of whether the ERC20 specification
+can be defined in a more abstract way that does not depend on the EVM, and
+thus can also be used in combination with other computational infrastructures.
 
 ## Abstract
 
@@ -27,39 +26,43 @@ is one of the most important standards for the implementation of tokens
 within Ethereum smart contracts.
 ERC20 provides basic functionality to transfer tokens and to be approved so
 they can be spent by another on-chain third party.
-Here we provide a complete formalization of ERC20 in
-[K](http://kframework.org).
-Specifically, we provide a formal executable semantics of ERC20.
-Our semantics clarifies what data (accounts, allowances, etc.) are handled by
-the various ERC20 functions and the precise meaning of the functions on such
+Unfortunately, ERC20 leaves several corner cases unspecified, which makes it
+inadequate to use in the formal verification of token implementations.
+ERC20-K is a complete formal specification of the ERC20 standard.
+Specifically, it is a *formal executable semantics* of a *completion of the
+ERC20 standard*, using the [K framework](http://kframework.org).
+ERC20-K clarifies what data (accounts, allowances, etc.) are handled by
+the various ERC20 functions and the precise meaning of those functions on such
 data.
-It also clarifies the semantics of *all* the corner cases that the ERC20
+ERC20-K also clarifies the meaning of *all* the corner cases that the ERC20
 standard omits to discuss, such as transfers from yourself to yourself
-or transfers that result in arithmetic overflows,
-following the most natural implementations that aim at minimizing gas
-consumption.
+or transfers that result in arithmetic overflows, following the most natural
+implementations that aim at minimizing gas consumption.
+Being executable, ERC20-K can also be tested for increased confidence.
+Driven by the semantic rules that form ERC20-K, as well as by their side
+conditions, we manually but systematically produced a test-suite
+(under the `tests` folder) consisting of several dozens of tests which
+we believe cover all the corner cases.
+We encourage you to analyze these tests and use them to test your
+implementations.
+Please contribute with more tests if you think that we left any interesting
+behaviors uncovered.
+
 
 ## Motivation
 
-Now that the K team has developed
-[KEVM](https://github.com/kframework/evm-semantics), a formal semantics of
-the Ethereum Virtual Machine, it has become possible to rigorously verify
-smart contracts at the EVM level against higher level specifications.
+[KEVM](https://github.com/kframework/evm-semantics) makes it possible to
+rigorously verify smart contracts at the EVM level against higher level
+specifications.
 The most requested property to verify so far was *ERC20 compliance* of
-smart contracts written in languages like Solidity or Viper.
-But what does that really mean?
-When formal verification is sought, a property (or specification) to
-verify the code against must be explicitly or implicitly provided.
-Moreover, such a specification is expected to be non-ambiguous and
-capable of answering all the questions regarding corner-case behaviors.
-At our knowledge, there was no such formal ERC20 specification available
-at the time of this writing.
-Our specification below is executable, so it can also be tested for increased
-confidence.
-We tested it against a test-suite of more than 60 tests
-(under the `tests` folder), which we believe cover all the corner cases.
-Please contribute with more tests if you think that we left some behaviors
-uncovered.
+tokens written in languages like Solidity or Viper.
+But what does "ERC20 compliance" really mean?
+When formal verification is sought, a property (or specification) that the
+code must satisfy must be available.
+Moreover, such a specification should be non-ambiguous and capable of
+answering all the questions regarding corner-case behaviors.
+At our knowledge, there was no such formal specification for ERC20, or
+ERC20 variants, available at the time of this writing.
 
 ## Formal Specification
 

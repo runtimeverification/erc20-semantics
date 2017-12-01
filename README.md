@@ -67,7 +67,7 @@ for ERC20 variants, available at the time of this writing.
 
 ## Structure
 
-[evm.md](evm.md)
+[erc20.md](erc20.md)
 
 [imp.md](imp.md)
 

@@ -1,4 +1,4 @@
-requires "../erc20.k"
+requires "../../erc20.k"
 
 module IMP
   import ERC20

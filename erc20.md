@@ -1,10 +1,6 @@
 ERC20-K: Formal Executable Specification of ERC20
 =================================================
 
-Authors: [Philip Daian](http://pdaian.com/) and [Grigore Rosu](http://fsl.cs.illinois.edu/grosu)
-
-Date: November 28, 2017
-
 **Acknowledgments:** Warmest thanks to the K team who defined the 
 [KEVM](https://github.com/kframework/evm-semantics) semantics
 (see

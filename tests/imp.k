@@ -124,8 +124,6 @@ module IMP
 // Recall that this ERC20 semantics assumes that the total supply, all the
 // accounts and all their allowances (including those which are 0), as well
 // as the caller given.  Then the code is executed on the caller's behalf.
-// If this preamble is inadequate for your example, then use makeReset at the
-// beginning of your program and then initialize the configuration your way.
 int accounts, x, y, a, b, c, caller, v;
 accounts = 10;
 x = accounts;

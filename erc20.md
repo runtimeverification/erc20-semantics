@@ -12,14 +12,18 @@ Date: November 28, 2017
 and verified smart contracts for ERC20 compliance.
 It is their effort that inevitably led to the quest for a formal specification
 of ERC20.
-We also thank [IOHK](http://iohk.io) for their generous support
-of both [KEVM](https://github.com/kframework/evm-semantics) and
-[IELE](https://github.com/runtimeverification/iele-semantics);
-IELE, in particular, led to the question of whether the ERC20 specification
-can be defined in a more abstract way that does not depend on the EVM, and
-thus can also be used in combination with other computational infrastructures.
 
-## Abstract
+We also thank [IOHK](http://iohk.io) not only for their generous funding
+support of both [KEVM](https://github.com/kframework/evm-semantics) and
+[IELE](https://github.com/runtimeverification/iele-semantics), but also for
+the stimulating technical discussions we had with their research team;
+discussions about IELE and about the planned separation between the settlement
+and the computational layers in Cardano, in particular, led to the question of
+whether the ERC20 specification can be defined in a more abstract way that does
+not depend on Ethereum, and thus can also be used in combination with other
+computational layers.
+
+# 1. Abstract
 
 The [ERC20 standard](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md)
 is one of the most important standards for the implementation of tokens
@@ -29,8 +33,9 @@ they can be spent by another on-chain third party.
 Unfortunately, ERC20 leaves several corner cases unspecified, which makes it
 inadequate to use in the formal verification of token implementations.
 ERC20-K is a complete formal specification of the ERC20 standard.
-Specifically, it is a *formal executable semantics* of a *completion of the
+Specifically, it is a *formal executable semantics* of a *refinement of the
 ERC20 standard*, using the [K framework](http://kframework.org).
+
 ERC20-K clarifies what data (accounts, allowances, etc.) are handled by
 the various ERC20 functions and the precise meaning of those functions on such
 data.
@@ -38,6 +43,7 @@ ERC20-K also clarifies the meaning of *all* the corner cases that the ERC20
 standard omits to discuss, such as transfers from yourself to yourself
 or transfers that result in arithmetic overflows, following the most natural
 implementations that aim at minimizing gas consumption.
+
 Being executable, ERC20-K can also be tested for increased confidence.
 Driven by the semantic rules that form ERC20-K, as well as by their side
 conditions, we manually but systematically produced a test-suite
@@ -49,7 +55,7 @@ Please contribute with more tests if you think that we left any interesting
 behaviors uncovered.
 
 
-## Motivation
+# 2. Motivation
 
 [KEVM](https://github.com/kframework/evm-semantics) makes it possible to
 rigorously verify smart contracts at the EVM level against higher level
@@ -59,24 +65,24 @@ tokens written in languages like Solidity or Viper.
 But what does "ERC20 compliance" really mean?
 When formal verification is sought, a property (or specification) that the
 code must satisfy must be available.
-Moreover, such a specification should be non-ambiguous and capable of
+Moreover, such a specification should be unambiguous and capable of
 answering all the questions regarding corner-case behaviors.
 At our knowledge, there was no such formal specification for ERC20, or
 ERC20 variants, available at the time of this writing.
 
-## Formal Specification
+# 3. Formal Specification
 
-Below we describe our ERC20 formal specification in K.
-Since it uses a small fragment of K and since not everybody knows K,
+Below we describe ERC20-K, our formal specification of a refined variant
+of the ERC20 standard token in K.
+Since it uses a small fragment of K and since the reader may not know K,
 we will also explain K as needed.
 
-Our objective is to define the ERC20 specification in such a way that
-it can be imported by an arbitrary programming language, whose programs
-can then make use of ERC20 tokens.
-Our immediate reason for doing so is to test our ERC20 specification
-programmatically.
+Our objective is to define ERC20-K in such a way that it can be imported
+by an arbitrary programming language, whose programs can then make use
+of the ERC20-K functions.
+Our immediate reason for doing so is to test ERC20-K programmatically.
 But this design choice can have other advantages, too.
-For example, it can be seen as a way to *plug-and-play* ERC20 support
+For example, it can be seen as a way to *plug-and-play* ERC20-K support
 to your favorite language.
 
 We start by defining a module called `ERC20`:
@@ -85,20 +91,20 @@ We start by defining a module called `ERC20`:
 module ERC20
 ```
 
-### Syntax
+## 3.1 Syntax
 
 A K definition consists of three major parts, often mixed:
 syntactic definitions, configuration definitions, and semantic
 rules.
-We start by defining the ERC20 syntax.
+We start by defining the ERC20-K syntax.
 
-#### Values and Addresses
+### 3.1.1 Values and Addresses
 
-ERC20 refers to two major types of data: `Value` and `Address`.
+ERC20-K refers to two major types of data: `Value` and `Address`.
 We assume that any implementation provides an additional `Bool`
-type and avoid including Booleans as values here.
-It is not difficult to see that although the original ERC20
-standard is presented using specific types for values and
+type and thus we avoid including Booleans as values here.
+It is not difficult to see that although the ERC20 standard is
+presented using specific types for values and
 addresses, namely `uint256` and `address`, respectively, its
 semantics is rather independent of these.
 They can be regarded as *parameters* of the specification.
@@ -114,7 +120,7 @@ category `Int`:
   syntax Address ::= Int  // can be easily changed
 ```
 
-#### Main Functions
+### 3.1.2 Main Functions
 
 Below is the syntax of the main ERC20 functions:
 
@@ -130,13 +136,14 @@ Below is the syntax of the main ERC20 functions:
                 | "throw"
 ```
 
-Since we want our ERC20 specification to be easily incorporated within
+Since we want ERC20-K to be easily incorporated within
 programming languages, a minimal interface needs to be agreed upon.
 Above, we assumed that such a language must include two syntactic categories:
 `AExp` for arithmetic expressions and `BExp` for Boolean expressions.
-Values and addresses are `AExp`s and `Bool` are `BExp`s.
-The constructs above, except for `throw`, correspond to the ERC20 functions.
-In K, grammars are defined using the BNF notation with terminals double-quoted.
+Values and addresses are `AExp`s and `Bool` values are `BExp`s.
+The constructs above, except for `throw`, correspond to the ERC20 standard
+functions.
+In K, grammars are defined using the BNF notation, with terminals double-quoted.
 The constant `throw` will be used as result of functions which perform illegal
 operations and will get the computation stuck.
 Note that all arguments of all functions above are `AExp`.
@@ -144,12 +151,12 @@ Also, all functions that take arguments have the attribute `strict`,
 which in K means that they should first evaluate their arguments.
 Their semantic rules below will not apply before their arguments are
 fully evaluated to their expected types of values.
-Consequently, programming language semantics importing our ERC20 semantics
+Consequently, programming language semantics importing our ERC20-K semantics
 will allow their programs to pass arbitrary expressions as arguments to
 the ERC20 functions, yet the semantics of those functions will apply only
 after their arguments are properly evaluated.
 
-#### Events
+### 3.1.3 Events
 
 The ERC20 functions are required, at success, to log two types of events:
 
@@ -159,15 +166,22 @@ The ERC20 functions are required, at success, to log two types of events:
 ```
 
 The events are then collected in a log.
-The precise syntax of the log is not specified in the standard, so we take
-the freedom to choose the syntax `Events: <event1> <event2> ... <eventn>`:
+The precise syntax of the log is not specified in the ERC20 standard, so
+in ERC20-K we take the freedom to choose the syntax
+`Events: <event1> <event2> ... <eventn>`:
 
 ```{.k}
   syntax EventLog ::= "Events:"
                     | EventLog Event
 ```
 
-### Configuration
+The syntax of the event log is unconstrained (by semantic rules) and
+is irrelevant for implementations.
+All the above is saying is that implementations of ERC20-K must implement
+the notion of an event log, together with an *empty* event log and the
+capability to *append* a new event to an existing event log.
+
+## 3.2 Configuration
 
 Configurations hold the structure and the data on which 
 the semantic rules match and apply.
@@ -210,15 +224,16 @@ The configuration consists or a top-level cell `<ERC20/>`, which
 holds 6 other cells.
 
 The `<caller/>` holds the initiator of the transaction, aka the sender
-of the message; we initialize the configuration with caller `0`.
+of the message, which is an `Address`; we initialize the configuration
+with caller `0`.
 It is important to know the caller, because the semantics of the transfer
 functions depend on it.
 
 The `<k/>` cell holds the computation to be performed by the caller.
-The `$PGM:K` variable is replaced with the input program by the `krun`
-tool, that is, the program we want to execute or whose semantics we are
-interested in.
-In this module we define the semantics of the `ERC20` functions
+The `$PGM:K` variable is replaced with the input program by the K
+tools, that is, with the program that we want to execute or whose semantics
+we are interested in.
+In this module we define the semantics of the ERC20 functions
 when they become the first task of the computation, but each programming
 language will define the semantics of its additional constructs similarly,
 when they become the first task in the `<k/>` cell.
@@ -240,20 +255,21 @@ Newly generated events are appended at the end of the log.
 The `<supply/>` cell holds the total token supply.
 
 For the reminder of the semantics, we assume the configuration is already
-correctly initialized (i.e., all the account ids are distinct, the
-balances are non-negative, and the total supply is the sum of all the
-balances) and the caller is known.
-In our simple programming language that we define on top of the ERC20 semantics
-we define macros that can be used to initialize the configuration.
+*correctly* initialized: all the account `<id/>`s are distinct, their
+`<balance/>`s are non-negative, and the total `<supply/>` is the sum of all
+the balances) and the `<caller/>` is known.
+In our simple IMP programming language that we define on top of the ERC20-K
+semantics (in the `tests` folder) we define macros that can be used to
+initialize the configuration.
 
-### Semantics
+## 3.3 Semantics
 
 ERC20 was originally designed for the EVM, whose integers
 (of type `uint256`) have `256` bits.
 The exact size of integers is important for arithmetic overflow,
 which needs to be rigorously defined in the formal specification.
 However, the precise size of integers can be a parameter of the
-ERC20 specification.
+ERC20-K specification.
 This way, the specification can easily translate to other execution
 environments, such as [eWASM](https://github.com/ewasm/) or 
 [IELE](https://github.com/runtimeverification/iele-semantics).
@@ -270,11 +286,14 @@ integers, like
 ```
 
 The attribute/tag `function` above states that `MAXVALUE`
-is to be reduced, or *rewritten* with its rule above, instantly
+is to be reduced, or *rewritten*, with its rule above, instantly
 wherever it occurs (rewriting of non-function symbols is constrained
 by the context).
+The suffix `Int` to arithmetic operations indicates that these are
+the K builtin operations on its unbounded integers; you can think
+of them as the mathematical rather than the machine integer operations.
 
-#### totalSupply
+### 3.3.1 totalSupply
 
 We start with the semantics of `totalSupply()`:
 ```{.k}
@@ -293,7 +312,7 @@ rewrites to the `Total` contents of the `<supply/>` cell.
 Note that rules only need to mention the cells they need; the rest of
 the configuration is inferred automatically and rules do not change it.
 
-#### balanceOf
+### 3.3.2 balanceOf
 
 We next define the semantics of `balanceOf` in a similar but slightly
 more involved way:
@@ -304,9 +323,9 @@ more involved way:
        <balance> Value </balance>
 ```
 
-Above, `balanceOf(Id)` is matched at the top of the `<k/>` cell;
-As a result, variable `Id` is bound to a specific account identifier
-found in the `<id/>` cell.
+Above, `balanceOf(Id)` is matched at the top of the `<k/>` cell.
+As a result, variable `Id` is bound to a specific account identifier.
+Then we match the `<id/>` cell that contains that precise account identifier.
 The `Value` of that account then becomes the result of `balanceOf(Id)`.
 Note that the `<id/>` and `<balance/>` cells are *not* at the same level
 in the configuration as the `<k/>` cell.
@@ -323,7 +342,8 @@ verbose rules, like the following equivalent rule:
          </account>
        ...</accounts>
 ```
-#### allowance
+
+### 3.3.3 allowance
 
 The rule for `allowance(Owner,Spender)` makes even more aggressive use of
 configuration abstraction:
@@ -335,18 +355,18 @@ configuration abstraction:
        <amount> Allowance </amount>
 ```
 
-Above, the `Owner` is matched in some `<allowance/>` cell, then the `Spender`
-is matched inside one of owner's `<allow/>` cells, and then the spender's
-allowed `Amount` is returned as the result of the `allowance` function call.
+Above, the given `Owner` is matched in its `<allowance/>` cell, then the
+`Spender` is matched inside one of owner's `<allow/>` cells, and then the
+spender's allowed `Allowance` is returned as the result of the `allowance`
+function call.
 
-#### approve
+### 3.3.4 approve
 
 The semantics of `approve(Spender, Allowance)` is trickier, because it requires
 three changes to the configuration (there are three `=>` arrows):
 the function call itself becomes `true` in the `<k/>` cell;
-at the same time, the allowance of the `Caller`
-(matched in the `<caller/>` cell) for the `Spender` changes to the new
-`Allowance`;
+at the same time, the allowance of the `<caller/>`, named `Owner` in the rule,
+for the `Spender` changes to the new `Allowance`;
 finally, an `Approve` event is logged:
 
 ```{.k}
@@ -362,10 +382,15 @@ Above, `_` is an anonymous/nameless variable; it matches the current
 `<amount/>` in order to rewrite it to `Allowance`.
 K rules can have side conditions on the matched variables, which are introduced
 with the keyword `requires`.
-Note that we explicitly required the `Allowance` to be positive, which may
-be redundant in some languages whose type system already ensures the the values
+We explicitly required the `Allowance` to be positive, which may
+be redundant in some languages whose type system already ensures that the values
 are positive.
 But here we attempt to be as general and safe as possible.
+In K, rules can be regarded as *transactions*: they either apply and modify
+the configuration atomically, when all the specified structure is matched and
+the side conditions are verified, or they do not apply at all and no change
+is made to the configuration.
+
 For completeness, we also include the following rule which throws when the
 allowance to approve is negative:
 
@@ -379,13 +404,13 @@ the `uint256` type guarantees integers to be positive.
 We believe that the throwing semantics above is more appropriate than having
 `approve` return `false`.
 
-#### transfer
+### 3.3.5 transfer
 
 The `transfer(To, Value)` function distinguishes four cases, depending upon
 whether the caller transfers the `Value` to itself or to another account, and
 whether the function succeeds or throws.
 
-##### Case 1: Caller different from receiver; success
+#### 3.3.5.1 Case 1: Caller different from receiver; success
 
 Let us discuss the successful cases first.
 If the caller transfers to a *different* account and all the side conditions
@@ -422,13 +447,14 @@ no larger than the `BalanceFrom`, and that the resulting `BalanceTo` of the
 receiver does not overflow.
 The ERC20 standard does not cover overflow, but many implementations throw
 when overflow occurs, so we prefer to do the same in our specification
-(the throwing rules follow the successful ones).
+(the throwing rules are given after the successful ones).
 
-##### Case 2: Caller same as receiver; success
+#### 3.3.5.2 Case 2: Caller same as receiver; success
 
 Next we discuss successful transfers from the caller to itself.
 A self transfer is useless, so it will likely not happen in practice.
-Yet, a complete specification of ERC20 must nevertheless consider it.
+Yet, a complete specification to be used for smart contract verification
+must nevertheless consider it.
 There are at least three possible behaviors to consider for self transfers:
 
 1. Throw.
@@ -445,9 +471,9 @@ However we *do* special case the semantics of self transfers because:
 
 1. Only one of the last two conditions in the `requires` clause above needs
 to be checked for self transfers (see the note below); and
-2. We believe it is important that developers of ERC20 implementations be
-aware of the semantic choice and program verifiers explicitly consider the
-case of self transfers.
+2. We believe it is important that developers of ERC20-compliant
+implementations be aware of the semantic choice and program verifiers
+explicitly consider the case of self transfers.
 
 ```{.k}
   rule <k> transfer(From, Value) => true ...</k>
@@ -459,13 +485,13 @@ case of self transfers.
      andBool Value <=Int BalanceFrom
 ```
 
-**Note:** implementations of `transfer` which first add `Value` to recipient's
-account and then subtract `Value` from sender's account will fail to satisfy
-the rule above, because of the potential overflow.
+**Note:** implementations of `transfer` which *first* add `Value` to
+recipient's account and *then* subtract `Value` from sender's account will
+fail to satisfy the rule above, because of the potential overflow.
 To favor those implementations we would have to change the second requires
 clause of the rule above to `BalanceFrom +Int Value <=Int MAXVALUE`.
 
-##### Case 3: Caller different from receiver; throw
+#### 3.3.5.3 Case 3: Caller different from receiver; throw
 
 This is the complement rule of Case 1 (distinct caller and receiver),
 which throws when the transfered `Value` is negative or exceeds the
@@ -488,10 +514,10 @@ which throws when the transfered `Value` is negative or exceeds the
       orBool BalanceTo +Int Value >Int MAXVALUE)
 ```
 
-##### Case 4: Caller same as receiver; throw
+#### 3.3.5.4 Case 4: Caller same as receiver; throw
 
 Finally, a transfer from the caller to itself throws when the `Value`
-`Value` is negative or exceeds the `BalanceFrom`:
+is negative or exceeds the `BalanceFrom`:
 
 ```{.k}
 // self transfer; again, we assume withdrawal followed by deposit
@@ -513,13 +539,13 @@ Like in Case 2, they would need to first deposit and then withdraw `Value`,
 but in that case the side condition `Value >Int Balance` needs to be
 eliminated, because a transfer to self would succeed also in that case.
 
-#### transferFrom
+### 3.3.6 transferFrom
 
 Like `transfer`, `transferFrom(From, To, Value)` also has four cases.
 However, unlike `transfer`, we now need to also check and update the
 `Caller`'s `Allowance`.
 
-##### Case 1: `From` different from `To`; success
+#### 3.3.6.1 Case 1: `From` different from `To`; success
 
 When `From` different from `To`, indicated by the fact that they are ids of
 different accounts, a successful transfer additionally requires that the
@@ -549,7 +575,7 @@ different accounts, a successful transfer additionally requires that the
 
 Note that a `Transfer` event has also been logged.
 
-##### Case 2: `From` same as `To`; success
+#### 3.3.6.2 Case 2: `From` same as `To`; success
 
 The case of a self transfer (first two arguments of `transferFrom` in the
 rule below are equal, `From`) is similar to that of `transfer`, but the
@@ -571,14 +597,14 @@ allowance of the `Caller` also needs to be checked and updated:
 
 Checking and updating the `Caller`'s allowance may look unnecessary for
 transfers from an account to itself, but if we do not do it then
-implementations would require to treat this case as special and thus would
-require more code and computation and thus more gas.
+ERC20-compliant implementations would require to treat this case as special
+and thus would require more code and computation and thus more gas.
 Like for `transfer`, our specification above favors implementations that
 first withdraw and then deposit the `Value`.
-To favour implementations that first deposit and then withdraw value, we would
+To favor implementations that first deposit and then withdraw, we would
 need to replace the last side condition above with an overflow check.
 
-##### Case 3: `From` different from `To`; throw
+#### 3.3.6.3 Case 3: `From` different from `To`; throw
 
 This is simply the complement of Case 1:
 
@@ -603,7 +629,7 @@ This is simply the complement of Case 1:
       orBool BalanceTo +Int Value >Int MAXVALUE)
 ```
 
-##### Case 4: `From` same as `To`; throw
+#### 3.3.6.4 Case 4: `From` same as `To`; throw
 
 This is simply the complement of Case 2:
 

@@ -64,3 +64,21 @@ Moreover, such a specification should be unambiguous and capable of
 answering all the questions regarding corner-case behaviors.
 At our knowledge, there was no such formal specification for ERC20, or
 for ERC20 variants, available at the time of this writing.
+
+## Structure
+
+[evm.md](evm.md)
+
+[imp.md](imp.md)
+
+## Testing
+
+[tests](tests)
+
+## Contributing
+
+- more tests
+
+- more languages
+
+- how to run ktest

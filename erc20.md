@@ -644,6 +644,10 @@ This is simply the complement of Case 2:
     requires Value <Int 0
       orBool Value >Int BalanceFrom
       orBool Value >Int Allowance   // `transfer` does not check allowance
+```
 
+The ERC20-K semantics is now complete, so we can close the module:
+
+```{.k}
 endmodule
 ```

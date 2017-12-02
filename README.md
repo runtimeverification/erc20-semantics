@@ -86,15 +86,18 @@ missing some corner cases and thus allowing vulnerabilities; and
 
 ## Acknowledgments
 
-Warmest thanks to the K team who defined the 
+We thank the K team who defined the 
 [KEVM](https://github.com/kframework/evm-semantics) semantics
 (see
 [technical report](https://www.ideals.illinois.edu/handle/2142/97207), too)
 and verified smart contracts for ERC20 compliance.
 It is their effort that inevitably led to the quest for a formal specification
 of ERC20.
+In particular, we would like to thank
+[Philip Daian](http://pdaian.com/) for brainstorming and help with
+understanding the corner cases of ERC20.
 
-We also thank [IOHK](http://iohk.io) not only for their generous funding
+We also warmly thank [IOHK](http://iohk.io) not only for their generous funding
 support of both [KEVM](https://github.com/kframework/evm-semantics) and
 [IELE](https://github.com/runtimeverification/iele-semantics), but also for
 the stimulating technical discussions we had with their research team.

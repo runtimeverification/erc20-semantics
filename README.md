@@ -1,6 +1,10 @@
 ERC20-K: Formal Executable Specification of ERC20
 =================================================
 
+Author: [Grigore Rosu](http://fsl.cs.illinois.edu/grosu)
+
+Date: 2 December 2017
+
 ## Abstract
 
 The [ERC20 standard](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md)

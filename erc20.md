@@ -581,3 +581,28 @@ The ERC20-K semantics is now complete, so we can close the module:
 ```{.k}
 endmodule
 ```
+
+## 4 How To Use ERC20-K
+
+One way to use ERC20-K, illustrated in [tests](tests), is to import it in
+other programming language semantics and thus offer ERC20 support to those
+languages.
+In particular, this can be useful to test the ERC20-K specification
+programmatically, as well as for producing tests that can be then used with
+implementations of ERC20.
+
+Another way to use ERC20-K is as a standard for ERC20 compliance.
+That is, as an answer to *what* needs to be proved about a smart contract
+claiming to implement an ERC20 token.
+Each of the rules above is one reachability claim that needs to be proved.
+Several of them have been proved as part of the
+[KEVM](https://github.com/kframework/evm-semantics) project about
+Solidity and Viper implementations of ERC20 tokens,
+and all of them are planned to be proved for a forthcoming ERC20 token
+implementation in [IELE](https://github.com/runtimeverification/iele-semantics/).
+Indeed, note that the ERC20-K specification above, unlike the original ERC20
+standard, is not bound to the EVM anymore.
+Finally, since the programming languages in which the tokens are implemented
+may have not been given a semantics in the same style as our [tests/imp](tests/imp)
+by importing the ERC20-K configuration, a mapping of ERC20-K configurations
+into the target language configuration may need to be separately defined.

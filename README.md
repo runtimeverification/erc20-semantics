@@ -63,22 +63,36 @@ code must satisfy must be available.
 Moreover, such a specification should be unambiguous and capable of
 answering all the questions regarding corner-case behaviors.
 At our knowledge, there was no such formal specification for ERC20, or
-for ERC20 variants, available at the time of this writing.
+for ERC20 variants, available at the time of this writing (December 2017).
 
 ## Structure
 
-[erc20.md](erc20.md)
+The main ERC20-K specification is defined and extensively commented in this
+file:
 
-[imp.md](imp.md)
+* [erc20.md](erc20.md)
 
-## Testing
+The following folder contains unit tests for the ERC20-K specification,
+that is, small programs that exercise the various ERC20 functions in various
+contexts.
+For that, a programming language needs to be first defined on top of ERC20-K:
 
-[tests](tests)
+* [tests](tests)
 
-## Contributing
+## Contribute
 
-- more tests
-
-- more languages
-
-- how to run ktest
+We welcome contributions!
+The easiest way to contribute is to add more tests to existing languages in the
+folder [tests](tests).
+A more involved way to contribute is to add new languages under [tests](tests),
+together with their own unit tests.
+It would be nice to cover a variety of language paradigms, such as more
+imperative language, object-oriented, functional, and even logical programming
+languages.
+Finally, you can adopt ERC20-K as *the standard specification of ERC20* when
+testing and verifying smart contracts and this way:
+(1) we as a community converge on one
+formal standard for token correctness, as opposed to each group having
+different versions and opinions about what correctness means, most likely
+missing some corner cases and thus allowing vulnerabilities; and
+(2) we as a community improve the test suite, for the benefit of us all.

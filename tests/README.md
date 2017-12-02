@@ -8,8 +8,8 @@ and automatically adapting their syntax, configuration and rules.
 In particular, we can easily define almost *any programming language
 on top of ERC20-K*.
 
-Once you have a language that incorporates the ERC20 functions, you
-can at minimum execute programs that exercise them.  (You can also verify
+Once you have a language that incorporates ERC20-K, you can at minimum
+execute programs that exercise the ERC20 functions.  (You can also verify
 such programs, and thus prove properties about ERC20-K, but we do not
 elaborate on that here, yet.)  In particular, you can create test-suites that
 thoroughly test the ERC20-K specification and thus the ERC20 standard.
@@ -33,8 +33,3 @@ in the following folder (start with the README):
 
 * [tests/imp](imp)
 
-## Contribute
-
-You can contribute by adding more folders with other programming languages
-and tests.
-It would be nice to cover all the language paradigms: 

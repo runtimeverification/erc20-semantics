@@ -1,23 +1,6 @@
 ERC20-K: Formal Executable Specification of ERC20
 =================================================
 
-**Acknowledgments:** Warmest thanks to the K team who defined the 
-[KEVM](https://github.com/kframework/evm-semantics) semantics
-(see
-[technical report](https://www.ideals.illinois.edu/handle/2142/97207), too)
-and verified smart contracts for ERC20 compliance.
-It is their effort that inevitably led to the quest for a formal specification
-of ERC20.
-
-We also thank [IOHK](http://iohk.io) not only for their generous funding
-support of both [KEVM](https://github.com/kframework/evm-semantics) and
-[IELE](https://github.com/runtimeverification/iele-semantics), but also for
-the stimulating technical discussions we had with their research team.
-Discussions about IELE and about the planned separation between the settlement
-and the computational layers in Cardano, in particular, led to the question of
-whether the ERC20 specification can be defined in a more abstract way that
-makes it usable in combination with computational layers different from EVM.
-
 ## Abstract
 
 The [ERC20 standard](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md)
@@ -63,7 +46,7 @@ code must satisfy must be available.
 Moreover, such a specification should be unambiguous and capable of
 answering all the questions regarding corner-case behaviors.
 At our knowledge, there was no such formal specification for ERC20, or
-for ERC20 variants, available at the time of this writing (December 2017).
+for ERC20 variants, available at the time of this writing (2 December 2017).
 
 ## Structure
 
@@ -96,3 +79,22 @@ formal standard for token correctness, as opposed to each group having
 different versions and opinions about what correctness means, most likely
 missing some corner cases and thus allowing vulnerabilities; and
 (2) we as a community improve the test suite, for the benefit of us all.
+
+## Acknowledgments
+
+Warmest thanks to the K team who defined the 
+[KEVM](https://github.com/kframework/evm-semantics) semantics
+(see
+[technical report](https://www.ideals.illinois.edu/handle/2142/97207), too)
+and verified smart contracts for ERC20 compliance.
+It is their effort that inevitably led to the quest for a formal specification
+of ERC20.
+
+We also thank [IOHK](http://iohk.io) not only for their generous funding
+support of both [KEVM](https://github.com/kframework/evm-semantics) and
+[IELE](https://github.com/runtimeverification/iele-semantics), but also for
+the stimulating technical discussions we had with their research team.
+Discussions about IELE and about the planned separation between the settlement
+and the computational layers in Cardano, in particular, led to the question of
+whether the ERC20 specification can be defined in a more abstract way that
+makes it usable in combination with computational layers different from EVM.

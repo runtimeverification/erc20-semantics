@@ -1,3 +1,17 @@
+/* Author: Grigore Rosu
+   Date: 2 December 2017
+
+   The IMP language defined below is mostly imported from the K Tutorial,
+   specifically from its IMP and IMP++ languages:
+   https://github.com/kframework/k/blob/master/k-distribution/tutorial/1_k/2_imp/lesson_5/imp.k
+   https://github.com/kframework/k/blob/master/k-distribution/tutorial/1_k/4_imp%2B%2B/lesson_8/imp.k
+
+   The goal of this language here is to test the ERC20-K specification.
+   It therefore adds language extensions to create, initialize, and modify
+   the configuration of ERC20-K.  See inlined comments below, where needed.
+   We assume the reader familiar with K and the K tutorial definitions
+   of IMP and IMP++. */
+
 requires "../../erc20.k"
 
 module IMP
@@ -31,6 +45,9 @@ module IMP
 
   syntax Stmt ::= AExp ";"                               [strict]
                 | BExp ";"                               [strict]
+/* The "make" statements below allow us to programmatically interfere
+   with the ERC20-K configuration.  Such statements would not be
+   possible/allowed in a normal programming language for smart contracts. */
                 | "makeAccount" "(" AExp "," AExp")"     [strict]
                 | "makeAllowance" "(" AExp "," AExp ")"  [strict]
                 | "makeTotalSupply" "(" AExp ")"         [strict]
@@ -41,12 +58,14 @@ module IMP
                 | "makePrintStringsTrue"
                 | "makePrintStringsFalse"
 
+/* The IMP configuration embeds the ERC20 configuration *unchanged*.
+   It adds several new cells to keep track of IMP program's state, I/O, UI. */
   configuration <IMP>
-                  initERC20Cell(Init)
+                  initERC20Cell(Init)  // including the ERC20-K configuration.
                   <state> .Map </state>
                   <in color="magenta" stream="stdin"> .List </in>
                   <out color="Orchid" stream="stdout"> .List </out>
-                  <throwAsPrint> false </throwAsPrint>
+                  <throwAsPrint> false </throwAsPrint> // for print THROW
                   <printStrings> true </printStrings>  // for tests
                 </IMP>
 
@@ -80,15 +99,33 @@ module IMP
   rule <k> int (X,Xs => Xs) ...</k> <state> Rho:Map (.Map => X|->0) </state>
     requires notBool (X in keys(Rho))
   rule int .Ids => .  [structural]
-  rule <k> print(I:Int) => . ...</k> <printStrings> true  </printStrings> <out>... .List => ListItem(I) </out>
-  rule <k> print(I:Int) => . ...</k> <printStrings> false </printStrings> <out>... .List => ListItem(I) ListItem("\n") </out>
+
+/* We slightly modify the semantics of print to allow a flag "printStrings".
+   When the flag is true, all strings are printed and integers are printed
+   normally.  When the flag is false, the strings are not printed and the
+   integers are printed one per line. */
+
+  rule <k> print(I:Int) => . ...</k> <printStrings> true  </printStrings>
+       <out>... .List => ListItem(I) </out>
+  rule <k> print(I:Int) => . ...</k> <printStrings> false </printStrings>
+       <out>... .List => ListItem(I) ListItem("\n") </out>
   rule <k> print(Str:String) => . ...</k> <printStrings> true  </printStrings> <out>... .List => ListItem(Str) </out>
   rule <k> print(Str:String) => . ...</k> <printStrings> false </printStrings>
   rule <k> halt ~> _ => . </k>
 
+/* We also add the following 3 rules which we do not have in the K Tutorial
+   IMP.  The reason we add them is to allow us to put semicolon ";" after
+   any syntactic construct, in particular after ERC20-K functions.  */
+
   rule _:Bool; => .
   rule _:Int; => .
   rule S:Stmt; => S
+
+/* Next we define the special "make" constructs which create and modify the
+   ERC20-K state.  One should be careful with these constructs, because any
+   mistake can make ERC20-K behave unexpectedly.  Such operations should not
+   exist in normal implementations of languages for smart contracts.  */
+
   rule <k> makeAccount(A,V) => . ...</k>
        <accounts>... .Bag => <account> <id> A </id> <balance> V </balance> </account> ...</accounts>
        <allowances>... .Bag => <allowance> <owner> A </owner> <spenders> .Bag </spenders> </allowance> ...</allowances> 
@@ -100,12 +137,19 @@ module IMP
   rule <k> makeThrowAsPrintTrue  => . ...</k> <throwAsPrint> _ => true </throwAsPrint>
   rule <k> makeThrowAsPrintFalse => . ...</k> <throwAsPrint> _ => false </throwAsPrint>
   rule <k> throw => false ...</k> <throwAsPrint> true </throwAsPrint> <out>... .List => ListItem("THROW\n") </out>
-
   rule <k> makePrintStringsTrue  => . ...</k> <printStrings> _ => true  </printStrings>
   rule <k> makePrintStringsFalse => . ...</k> <printStrings> _ => false </printStrings>
 
-
-// Defining some useful macros
+/* The next definitions have nothing to do with the IMP semantics.
+   They are macros allowing us to write some IMP programs more compactly.
+   Note that the objective of this folder is to test the ERC20-K and not
+   to define production languages on top of ERC20-K.  Thus we do not pay
+   any attention to the viability of the language itself here, but simply
+   focus on creating the testing infrastructure that we need.  That being
+   said, I think developing a uniform and modular framework to plug-and-play
+   ERC20-K in a language that has a K semantics is a very valuable research
+   initiative in itself.  In short, I am not proud of the rest of this module
+   but the objective was *not* to define something to be proud of.  :)  */
 
   syntax Id ::= "accounts"  [token]
               | "x"         [token]
@@ -116,14 +160,15 @@ module IMP
               | "caller"    [token]
               | "v"         [token]
 
+/* ---PREAMBLE----------
+   This preamble creates some initial configuration:
+     accounts, allowances, supply, caller.
+   Recall that this ERC20 semantics assumes that the total supply, all the
+   accounts and all their allowances (including those which are 0), as well
+   as the caller given.  Then the code is executed on the caller's behalf. */
+
   syntax Stmt ::= "test.preamble" "(" ")"  [macro]
   rule test.preamble() =>
-// ---PREAMBLE----------
-// This preamble creates some initial configuration:
-//   accounts, allowances, supply, caller.
-// Recall that this ERC20 semantics assumes that the total supply, all the
-// accounts and all their allowances (including those which are 0), as well
-// as the caller given.  Then the code is executed on the caller's behalf.
 int accounts, x, y, a, b, c, caller, v;
 accounts = 10;
 x = accounts;

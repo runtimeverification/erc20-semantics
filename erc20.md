@@ -469,6 +469,21 @@ Like in Case 2, they would need to first deposit and then withdraw `Value`,
 but in that case the side condition `Value >Int Balance` needs to be
 eliminated, because a transfer to self would succeed also in that case.
 
+The four rules above only treat the cases where `transfer` either returns
+`true` or otherwise `throw`s.
+There is no rule where `transfer` returns `false`.
+Nevertheless, implementations of tokens may choose to deviate from
+our ERC20-K specification, or to refine it, in ways where returning `false`
+may be useful.
+For example, a particular token implementation may choose to ignore transfers
+from some particular account, say 0, intended to hold the burnt tokens,
+and may prefer to do that by having `transfer` return `false` instead of
+throwing.
+Therefore, to allow future flexibility, it makes to give the functions
+`transfer`, `transferFrom` and `approve` semantics which return either
+`true` or `throw`, without any specific cases returning `false`.
+
+
 ### 3.6 transferFrom
 
 Like `transfer`, `transferFrom(From, To, Value)` also has four cases.

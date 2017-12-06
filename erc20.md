@@ -195,14 +195,18 @@ initialize the configuration.
 ## 3 Semantics
 
 ERC20 was originally designed for the EVM, whose integers
-(of type `uint256`) have `256` bits.
+(of type `uint256`) are unsigned and have `256` bits, so can go up
+to `2^256`.
 The exact size of integers is important for arithmetic overflow,
 which needs to be rigorously defined in the formal specification.
 However, the precise size of integers can be a parameter of the
 ERC20-K specification.
-This way, the specification can easily translate to other execution
+This way, the specification can easily be used with various execution
 environments, such as [eWASM](https://github.com/ewasm/) or 
-[IELE](https://github.com/runtimeverification/iele-semantics).
+[IELE](https://github.com/runtimeverification/iele-semantics), or
+with various programming languages
+(e.g., [Viper](https://github.com/ethereum/viper) appears to converge
+towards integers up to `2^128`).
 The syntax declaration and the rule below define an integer
 constant `MAXVALUE` and initialize it with the largest integer
 on 256 bits (one can set it to "infinity" if one does not care about

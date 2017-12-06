@@ -19,6 +19,7 @@ while (true) {
   print("--------------------------------\n");
   print("Command: ");
   c = read();
+  print("\n\n\n\n\n\n\n");
   if (c == -3) { test.makeBalance(read()); }
   if (c == -2) { test.makeCaller(read()); }
   if (c == -1) { test.makeTotalSupply(read()); }

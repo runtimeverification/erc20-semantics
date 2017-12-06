@@ -25,7 +25,11 @@ info.
 There is one program in the test suite which is different:
 * [interactive.imp](interactive.imp)
 
-This program can be used to play with the ERC20 functions interactively.
+This program can be used to play with the ERC20 functions interactively,
+as shown in the following video:
+
+[![Executing interactive.imp](https://img.youtube.com/vi/aM-JE99C-fQ/0.jpg)](https://www.youtube.com/watch?v=aM-JE99C-fQ)
+
 This can be useful when you add new tests.
 
 ### Kompiling IMP and Executing Tests

@@ -51,18 +51,25 @@ Moreover, such a specification should be unambiguous and capable of
 answering all the questions regarding corner-case behaviors.
 To our knowledge, there was no such formal specification for ERC20, or
 for ERC20 variants, available at the time of this writing (2 December 2017).
+
 The existing ERC20 specifications are either too informal to serve as a formal
-specification for verification purposes, such as the Ethereum
+specification for verification purposes, or they are not executable, incomplete
+and use unnecessarily advanced logical formalisms.
+For example, the Ethereum
 [wiki](https://theethereum.wiki/w/index.php/ERC20_Token_Standard) and
 [github](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md)
-variants in spite of being called *formalized* by a
+variants are rather informal and imprecise, in spite of being called
+*formalized* by a
 [coindesk article](https://www.coindesk.com/ethereums-erc-20-token-standard-formalized),
-[McDonald's](https://medium.com/@jgm.orinoco/understanding-erc-20-token-contracts-a809a7310aa5),
-[Seibel's](https://medium.com/@james_3093/ethereum-erc20-tokens-explained-9f7f304055df),
+and so are the ERC20 descriptions by
+[McDonald](https://medium.com/@jgm.orinoco/understanding-erc-20-token-contracts-a809a7310aa5),
+[Seibel](https://medium.com/@james_3093/ethereum-erc20-tokens-explained-9f7f304055df),
+[McKie](https://medium.com/blockchannel/the-anatomy-of-erc20-c9e5c5ff1d02),
 etc., as well as the
 [Stackoverflow](https://ethereum.stackexchange.com/questions/16714/what-are-the-key-criteria-for-meeting-the-erc20-token-standard/16725)
-explanations,
-or, when actual formalizations as a mathematical theory were attempted, such as
+explanations.
+On the other hand, when actual formalizations as a mathematical theory were
+attempted, such as
 [McRainface](https://dapphub.github.io/LLsai/token)'s, they are paper-based
 (i.e., not executable) and using logical formalisms that are hard to understand
 by most developers, such as

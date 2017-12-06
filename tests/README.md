@@ -18,7 +18,7 @@ modifying our ERC20-K spec accordingly, or replacing it completely.
 
 ## IMP
 
-At the time of this writing (2 December 2017), we have done the above with
+At the time of this writing (December 2017), we have done the above with
 only one programming language, the simplest of them all, IMP, which is also
 one of the languages that comes with the K distribution.
 To learn IMP's semantics and a bit more K, we recommend [k-distribution/tutorial/1_k/2_imp/lesson_5/imp.k](https://github.com/kframework/k/blob/master/k-distribution/tutorial/1_k/2_imp/lesson_5/imp.k).

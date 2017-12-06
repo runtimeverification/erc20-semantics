@@ -3,7 +3,7 @@ ERC20-K: Formal Executable Specification of ERC20
 
 Author: [Grigore Rosu](http://fsl.cs.illinois.edu/grosu)
 
-Date: 2 December 2017
+Date: 6 December 2017
 
 ## Abstract
 
@@ -50,7 +50,7 @@ code must satisfy must be available.
 Moreover, such a specification should be unambiguous and capable of
 answering all the questions regarding corner-case behaviors.
 To our knowledge, there was no such formal specification for ERC20, or
-for ERC20 variants, available at the time of this writing (2 December 2017).
+for ERC20 variants, available at the time of this writing (December 2017).
 
 The existing ERC20 specifications are either too informal to serve as a formal
 specification for verification purposes, or they are not executable, incomplete

@@ -74,9 +74,14 @@ Values and addresses are `AExp`s and `Bool` values are `BExp`s.
 The constructs above, except for `throw`, correspond to the ERC20 standard
 functions.
 In K, grammars are defined using the BNF notation, with terminals double-quoted.
+Note that a syntax/grammar of a language may be and usually is more permissive
+than desired; many languages define static type checkers to reject malformed
+programs, but this is not our concern here.
 The constant `throw` will be used as result of functions which perform illegal
 operations and will get the computation stuck.
-Note that all arguments of all functions above are `AExp`.
+Note that all arguments of all functions above are `AExp`, meaning
+that, syntactically speaking, arbitrary arithmetic expressions are allowed
+as arguments of these functions.
 Also, all functions that take arguments have the attribute `strict`,
 which in K means that they should first evaluate their arguments.
 Their semantic rules below will not apply before their arguments are

@@ -94,6 +94,8 @@ these functions.
 However, K is a general purpose framework and makes no implicit assumptions,
 so we have to say it explicitly that expressions are allowed to be passed as
 arguments.
+In fact, K does not even know that these language constructs are meant to be
+"functions", nor even what a function is by default.
 
 All ERC20 functions above that take arguments have the attribute `strict`,
 which in K means that they should first evaluate their arguments.

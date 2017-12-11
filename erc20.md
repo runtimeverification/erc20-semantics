@@ -73,16 +73,29 @@ Above, we assumed that such a language must include two syntactic categories:
 Values and addresses are `AExp`s and `Bool` values are `BExp`s.
 The constructs above, except for `throw`, correspond to the ERC20 standard
 functions.
+
 In K, grammars are defined using the BNF notation, with terminals double-quoted.
 Note that a syntax/grammar of a language may be and usually is more permissive
 than desired; many languages define static type checkers to reject malformed
 programs, but this is not our concern here.
 The constant `throw` will be used as result of functions which perform illegal
 operations and will get the computation stuck.
-Note that all arguments of all functions above are `AExp`, meaning
-that, syntactically speaking, arbitrary arithmetic expressions are allowed
-as arguments of these functions.
-Also, all functions that take arguments have the attribute `strict`,
+
+All arguments of all functions above are `AExp`, meaning that, syntactically
+speaking, arbitrary arithmetic expressions are allowed as arguments of these
+functions.
+This looks different from how these functions are defined in the
+[original ERC20 specification](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md),
+that is, `transfer(Address,Value)`, etc., because there the *signature*
+(and not the *syntax*) of these functions is defined.
+It is implicitly understood there that the syntax of high level languages
+will allow us to pass expressions (of corresponding types) as arguments to
+these functions.
+However, K is a general purpose framework and makes no implicit assumptions,
+so we have to say it explicitly that expressions are allowed to be passed as
+arguments.
+
+All ERC20 functions above that take arguments have the attribute `strict`,
 which in K means that they should first evaluate their arguments.
 Their semantic rules below will not apply before their arguments are
 fully evaluated to their expected types of values.

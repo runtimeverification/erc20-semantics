@@ -204,7 +204,7 @@ Newly generated events are appended at the end of the log.
 
 The `<supply/>` cell holds the total token supply.
 
-For the reminder of the semantics, we assume the configuration is already
+For the remainder of the semantics, we assume the configuration is already
 *correctly* initialized: all the account `<id/>`s are distinct, their
 `<balance/>`s are non-negative, and the total `<supply/>` is the sum of all
 the balances) and the `<caller/>` is known.

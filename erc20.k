@@ -7,6 +7,8 @@
    See erc20.md for comments.  */
 
 module ERC20
+  imports DOMAINS
+
   syntax Value   ::= Int  // this can be changed
   syntax Address ::= Int  // this can be changed
   syntax AExp ::= Value | Address
@@ -33,7 +35,7 @@ module ERC20
                     </account>
                   </accounts>
                   <allowances>
-                    <allowance multiplicity="*">
+                    <allowance1 multiplicity="*">
                       <owner> 0 </owner>
                       <spenders>
                         <allow multiplicity="*">
@@ -41,7 +43,7 @@ module ERC20
                           <amount> 0 </amount>
                         </allow>
                       </spenders>
-                    </allowance>
+                    </allowance1>
                   </allowances>
                   <log> Events: </log>
                   <supply> 0 </supply>

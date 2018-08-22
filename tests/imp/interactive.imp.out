@@ -1,0 +1,22 @@
+--------------------------------
+Caller: 7
+--------------------------------
+ 1 : totalSupply()
+ 2 : balanceOf(Id)
+ 3 : allowance(Owner,Spender)
+ 4 : approve(Spender,Allowance)
+ 5 : transfer(To,Value)
+ 6 : transferFrom(From,To,Value)
+--------------------------------
+ 0 : EXIT
+-1 : makeTotalSupply(Value)
+-2 : makeCaller(Id)
+-3 : makeBalance(Value)
+--------------------------------
+Command: 
+
+
+
+
+
+

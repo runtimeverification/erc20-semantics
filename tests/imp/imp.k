@@ -63,8 +63,8 @@ module IMP
   configuration <IMP>
                   initERC20Cell(Init)  // including the ERC20-K configuration.
                   <state> .Map </state>
-                  <in color="magenta" stream="stdin"> .List </in>
-                  <out color="Orchid" stream="stdout"> .List </out>
+                  <input color="magenta" stream="stdin"> .List </input>
+                  <output color="Orchid" stream="stdout"> .List </output>
                   <throwAsPrint> false </throwAsPrint> // for print THROW
                   <printStrings> true </printStrings>  // for tests
                 </IMP>
@@ -74,7 +74,7 @@ module IMP
 // AExp
   rule <k> X:Id => Rho[X] ...</k> <state> Rho </state>
   rule <k> read() => I ...</k>
-       <in> ListItem(I:Int) => .List ...</in>  [read]
+       <input> ListItem(I:Int) => .List ...</input>  [read]
   rule I1 * I2 => I1 *Int I2
   rule I1 + I2 => I1 +Int I2
 // BExp
@@ -106,10 +106,10 @@ module IMP
    integers are printed one per line. */
 
   rule <k> print(I:Int) => . ...</k> <printStrings> true  </printStrings>
-       <out>... .List => ListItem(I) </out>
+       <output>... .List => ListItem(I) </output>
   rule <k> print(I:Int) => . ...</k> <printStrings> false </printStrings>
-       <out>... .List => ListItem(I) ListItem("\n") </out>
-  rule <k> print(Str:String) => . ...</k> <printStrings> true  </printStrings> <out>... .List => ListItem(Str) </out>
+       <output>... .List => ListItem(I) ListItem("\n") </output>
+  rule <k> print(Str:String) => . ...</k> <printStrings> true  </printStrings> <output>... .List => ListItem(Str) </output>
   rule <k> print(Str:String) => . ...</k> <printStrings> false </printStrings>
   rule <k> halt ~> _ => . </k>
 
@@ -128,7 +128,7 @@ module IMP
 
   rule <k> makeAccount(A,V) => . ...</k>
        <accounts>... .Bag => <account> <id> A </id> <balance> V </balance> </account> ...</accounts>
-       <allowances>... .Bag => <allowance> <owner> A </owner> <spenders> .Bag </spenders> </allowance> ...</allowances> 
+       <allowances>... .Bag => <ledger> <owner> A </owner> <spenders> .Bag </spenders> </ledger> ...</allowances>
   rule <k> makeAllowance(A,B) => . ...</k> <owner> A </owner>
        <spenders>... .Bag => <allow> <spender> B </spender> <amount> 0 </amount> </allow> ...</spenders>
   rule <k> makeTotalSupply(I) => . ...</k> <supply> _ => I </supply> requires I >=Int 0
@@ -136,7 +136,7 @@ module IMP
   rule <k> makeBalance(I:Int) => . ...</k> <caller> Owner </caller> <id> Owner </id> <balance> _ => I </balance>
   rule <k> makeThrowAsPrintTrue  => . ...</k> <throwAsPrint> _ => true </throwAsPrint>
   rule <k> makeThrowAsPrintFalse => . ...</k> <throwAsPrint> _ => false </throwAsPrint>
-  rule <k> throw => false ...</k> <throwAsPrint> true </throwAsPrint> <out>... .List => ListItem("THROW\n") </out>
+  rule <k> throw => false ...</k> <throwAsPrint> true </throwAsPrint> <output>... .List => ListItem("THROW\n") </output>
   rule <k> makePrintStringsTrue  => . ...</k> <printStrings> _ => true  </printStrings>
   rule <k> makePrintStringsFalse => . ...</k> <printStrings> _ => false </printStrings>
 
